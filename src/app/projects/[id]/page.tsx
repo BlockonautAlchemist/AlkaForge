@@ -51,12 +51,15 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       return;
     }
 
+    console.log("Fetching project with ID:", projectId);
+    console.log("Current user:", user);
     fetchProject();
   }, [user, projectId, router]);
 
   const fetchProject = async () => {
     try {
       setLoading(true);
+      console.log("Starting fetchProject function");
       
       // Fetch project details
       const { data: projectData, error: projectError } = await supabase
@@ -76,37 +79,61 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         throw projectError;
       }
 
+      console.log("Project data retrieved successfully:", projectData);
       setProject(projectData);
       setName(projectData.name);
       setDescription(projectData.description || '');
 
       // Check if knowledge_files table exists
+      console.log("Checking if knowledge_files table exists");
       const { error: tableCheckError } = await supabase
         .from('knowledge_files')
         .select('id')
         .limit(1);
         
+      if (tableCheckError) {
+        console.error("Error checking knowledge_files table:", tableCheckError);
+        return;
+      }
+      
+      console.log("knowledge_files table exists, fetching files for project:", projectId);
+      
       // Only fetch files if the table exists
-      if (!tableCheckError) {
-        // Fetch files for this project
-        const { data: filesData, error: filesError } = await supabase
-          .from('knowledge_files')
-          .select('*')
-          .eq('project_id', projectId)
-          .order('created_at', { ascending: false });
+      // Fetch files for this project
+      const { data: filesData, error: filesError } = await supabase
+        .from('knowledge_files')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false });
 
-        if (filesError) {
-          console.error("Error fetching files:", filesError);
-          console.error("Error details:", JSON.stringify(filesError, null, 2));
-          console.error("Error code:", filesError.code);
-          console.error("Error message:", filesError.message);
-        } else if (filesData) {
-          console.log("Files data received:", filesData);
-          setFiles(filesData);
-        }
+      if (filesError) {
+        console.error("Error fetching files:", filesError);
+        console.error("Error details:", JSON.stringify(filesError, null, 2));
+        console.error("Error code:", filesError.code);
+        console.error("Error message:", filesError.message);
+      } else if (filesData) {
+        console.log("Files data received:", filesData);
+        console.log("Number of files found:", filesData.length);
+        
+        // Log each file to check their properties
+        filesData.forEach((file, index) => {
+          console.log(`File ${index + 1}:`, file);
+          console.log(`- ID: ${file.id}`);
+          console.log(`- Name: ${file.name}`);
+          console.log(`- Project ID: ${file.project_id}`);
+          console.log(`- User ID: ${file.user_id}`);
+        });
+        
+        setFiles(filesData);
+      } else {
+        console.log("No files data received, but no error either");
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Error in fetchProject:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
       toast.error('Failed to load project details.');
     } finally {
       setLoading(false);
@@ -175,12 +202,20 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       setIsUploading(true);
       setUploadProgress(0);
       
+      console.log("Starting file upload process");
+      console.log("File to upload:", uploadFile.name, uploadFile.type, uploadFile.size);
+      console.log("User ID:", user.id);
+      console.log("Project ID:", projectId);
+      
       // Create a unique file path
       const fileExt = uploadFile.name.split('.').pop();
       const fileName = `${Math.random().toString(36).substring(2, 15)}_${Date.now()}.${fileExt}`;
       const filePath = `${user.id}/${projectId}/${fileName}`;
       
+      console.log("Generated file path:", filePath);
+      
       // Upload file to Supabase Storage
+      console.log("Uploading file to Supabase Storage...");
       const { data: storageData, error: storageError } = await supabase.storage
         .from('knowledge_files')
         .upload(filePath, uploadFile, {
@@ -189,8 +224,11 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         });
 
       if (storageError) {
+        console.error("Error uploading to storage:", storageError);
         throw storageError;
       }
+
+      console.log("File uploaded to storage successfully:", storageData);
 
       // Get the public URL
       const { data: publicUrlData } = supabase.storage
@@ -198,33 +236,44 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         .getPublicUrl(filePath);
 
       const publicUrl = publicUrlData.publicUrl;
+      console.log("Generated public URL:", publicUrl);
+
+      // Prepare file metadata
+      const fileMetadata = {
+        name: uploadFile.name,
+        file_type: uploadFile.type,
+        size: uploadFile.size,
+        url: publicUrl,
+        storage_path: filePath,
+        project_id: projectId,
+        user_id: user.id
+      };
+      
+      console.log("Inserting file metadata into database:", fileMetadata);
 
       // Insert file metadata into the database
       const { data: fileData, error: fileError } = await supabase
         .from('knowledge_files')
-        .insert([
-          {
-            name: uploadFile.name,
-            file_type: uploadFile.type,
-            size: uploadFile.size,
-            url: publicUrl,
-            storage_path: filePath,
-            project_id: projectId,
-            user_id: user.id
-          }
-        ])
+        .insert([fileMetadata])
         .select();
 
       if (fileError) {
+        console.error("Error inserting file metadata:", fileError);
+        console.error("Error details:", JSON.stringify(fileError, null, 2));
+        
         // If database insert fails, delete the uploaded file
+        console.log("Cleaning up storage file due to database error");
         await supabase.storage
           .from('knowledge_files')
           .remove([filePath]);
         throw fileError;
       }
 
+      console.log("File metadata inserted successfully:", fileData);
+
       // Add the new file to the files state
       if (fileData) {
+        console.log("Adding file to UI state");
         setFiles([fileData[0] as KnowledgeFile, ...files]);
       }
 
@@ -233,9 +282,14 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       setShowUploadModal(false);
       
       // Refresh the file list
+      console.log("Refreshing file list");
       fetchProject();
     } catch (error) {
       console.error('Error uploading file:', error);
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
       toast.error('Failed to upload file. Please try again.');
     } finally {
       setIsUploading(false);

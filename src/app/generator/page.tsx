@@ -6,6 +6,7 @@ import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { generateContent } from '@/lib/openrouter';
+import { extractTextFromFiles } from '@/lib/fileUtils';
 import { FiCpu, FiCopy, FiTwitter, FiMessageSquare, FiMessageCircle, FiSend } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
@@ -80,44 +81,96 @@ export default function ContentGenerator() {
     setGeneratedContent('');
 
     try {
+      console.log("Starting content generation process");
+      console.log("Selected project:", selectedProject);
+      console.log("Content type:", contentType);
+      console.log("Tone:", tone);
+      console.log("Prompt:", prompt);
+      
       // Get project knowledge files to provide context
-      const { data: files } = await supabase
+      console.log("Fetching knowledge files for project");
+      const { data: files, error: filesError } = await supabase
         .from('knowledge_files')
-        .select('name, url')
-        .eq('project_id', selectedProject)
-        .limit(5);
-
-      // Enhance the prompt with project context if available
-      let enhancedPrompt = prompt;
-      if (files && files.length > 0) {
-        enhancedPrompt += `\n\nRelevant context files: ${files.map(f => f.name).join(', ')}`;
+        .select('name, url, file_type, size')
+        .eq('project_id', selectedProject);
+        
+      if (filesError) {
+        console.error("Error fetching knowledge files:", filesError);
+        console.error("Error details:", JSON.stringify(filesError, null, 2));
+        toast.error("Failed to fetch knowledge files. Generating without knowledge context.");
       }
 
-      // Generate content using Claude-3.7-Sonnet
+      let knowledgeContent = '';
+      
+      // Extract text from knowledge files if available
+      if (files && files.length > 0) {
+        toast.success(`Using ${files.length} knowledge files for context.`);
+        console.log("Knowledge files found:", files.length);
+        console.log("Files:", files.map(f => ({ name: f.name, type: f.file_type, size: f.size })));
+        
+        try {
+          // Extract text from files
+          knowledgeContent = await extractTextFromFiles(files);
+          console.log("Knowledge content extracted, length:", knowledgeContent.length);
+          
+          // Truncate if too long (to avoid token limits)
+          if (knowledgeContent.length > 100000) {
+            console.log("Knowledge content too long, truncating");
+            knowledgeContent = knowledgeContent.substring(0, 100000) + "... [content truncated due to length]";
+          }
+        } catch (extractError) {
+          console.error("Error extracting text from files:", extractError);
+          toast.error("Failed to extract text from knowledge files. Generating without knowledge context.");
+          knowledgeContent = '';
+        }
+      } else {
+        console.log("No knowledge files found for this project");
+      }
+
+      console.log("Calling OpenRouter API to generate content");
+      
+      // Generate content using Claude with knowledge context
       const content = await generateContent({
-        prompt: enhancedPrompt,
+        prompt: prompt,
         contentType,
         tone,
-        maxTokens: contentType === 'thread' ? 2000 : 1000
+        maxTokens: contentType === 'thread' ? 2000 : 1000,
+        knowledgeContent: knowledgeContent
       });
 
+      console.log("Content generated successfully, length:", content.length);
       setGeneratedContent(content);
 
       // Save the generated content to history
-      await supabase.from('content_history').insert({
+      console.log("Saving content to history");
+      const { error: historyError } = await supabase.from('content_history').insert({
         user_id: user?.id,
         project_id: selectedProject,
         prompt: prompt,
         content: content,
         content_type: contentType,
-        tone: tone,
-        created_at: new Date().toISOString()
+        tone: tone
       });
+      
+      if (historyError) {
+        console.error("Error saving to history:", historyError);
+      } else {
+        console.log("Content saved to history successfully");
+      }
 
       toast.success('Content generated successfully!');
     } catch (error) {
       console.error('Error generating content:', error);
-      toast.error('Failed to generate content. Please try again.');
+      
+      let errorMessage = 'Failed to generate content. Please try again.';
+      
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        errorMessage = `Error: ${error.message}`;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
