@@ -39,6 +39,14 @@ export default function ContentGenerator() {
     }
 
     fetchProjects();
+
+    // Check for projectId in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const projectIdFromUrl = urlParams.get('projectId');
+    if (projectIdFromUrl) {
+      console.log("Project ID from URL:", projectIdFromUrl);
+      setSelectedProject(projectIdFromUrl);
+    }
   }, [user, router]);
 
   const fetchProjects = async () => {

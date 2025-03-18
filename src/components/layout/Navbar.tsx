@@ -66,12 +66,6 @@ const Navbar: React.FC = () => {
                   Dashboard
                 </Link>
                 <Link 
-                  href="/knowledge" 
-                  className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
-                >
-                  Knowledge Base
-                </Link>
-                <Link 
                   href="/generator" 
                   className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
                 >
@@ -138,12 +132,6 @@ const Navbar: React.FC = () => {
                 className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
               >
                 Dashboard
-              </Link>
-              <Link 
-                href="/knowledge" 
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
-              >
-                Knowledge Base
               </Link>
               <Link 
                 href="/generator" 

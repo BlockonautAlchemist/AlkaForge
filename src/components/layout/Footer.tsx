@@ -26,11 +26,6 @@ const Footer: React.FC = () => {
                   </Link>
                 </li>
                 <li>
-                  <Link href="/knowledge" className="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">
-                    Knowledge Base
-                  </Link>
-                </li>
-                <li>
                   <Link href="/generator" className="text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400">
                     Content Generator
                   </Link>

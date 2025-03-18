@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { FiPlus, FiFolder, FiEdit2, FiTrash2, FiFileText } from 'react-icons/fi';
+import { FiPlus, FiFolder, FiEdit2, FiTrash2, FiFileText, FiUpload } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 type Project = {
@@ -23,6 +23,8 @@ export default function Dashboard() {
   const [newProjectName, setNewProjectName] = useState('');
   const [newProjectDescription, setNewProjectDescription] = useState('');
   const [createError, setCreateError] = useState('');
+  const [uploadFiles, setUploadFiles] = useState<File[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
 
   const router = useRouter();
   const { user } = useAuth();
@@ -103,6 +105,7 @@ export default function Dashboard() {
     }
 
     try {
+      setIsUploading(true);
       console.log("Creating new project with name:", newProjectName);
       console.log("User ID:", user?.id);
       console.log("User object:", JSON.stringify(user, null, 2));
@@ -163,15 +166,71 @@ export default function Dashboard() {
 
       console.log("Project created successfully:", data);
 
+      // Handle file uploads if there are any
+      if (data && uploadFiles.length > 0) {
+        const projectId = data[0].id;
+        const allowedTypes = ['application/pdf', 'text/plain', 'text/markdown'];
+        const validFiles = uploadFiles.filter(file => allowedTypes.includes(file.type));
+        
+        if (validFiles.length === 0) {
+          toast.error('Only PDF, TXT, and MD files are allowed.');
+        } else {
+          try {
+            toast.success('Project created! Now uploading files...');
+            
+            for (const file of validFiles) {
+              const fileExt = file.name.split('.').pop();
+              const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+              const filePath = `${user.id}/${projectId}/${fileName}`;
+              
+              // Upload file to Supabase Storage
+              const { error: uploadError } = await supabase.storage
+                .from('knowledge_files')
+                .upload(filePath, file);
+                
+              if (uploadError) {
+                console.error("Error uploading file:", uploadError);
+                toast.error(`Failed to upload ${file.name}: ${uploadError.message}`);
+                continue;
+              }
+              
+              // Get the public URL
+              const { data: urlData } = supabase.storage
+                .from('knowledge_files')
+                .getPublicUrl(filePath);
+                
+              // Save file metadata to the database
+              await supabase
+                .from('knowledge_files')
+                .insert({
+                  name: file.name,
+                  file_type: fileExt,
+                  size: file.size,
+                  url: urlData.publicUrl,
+                  project_id: projectId,
+                  user_id: user.id,
+                  storage_path: filePath
+                });
+            }
+            
+            toast.success(`${validFiles.length} file(s) uploaded successfully!`);
+          } catch (uploadError) {
+            console.error('Error uploading files:', uploadError);
+            toast.error('Some files could not be uploaded. Please add them later from the project page.');
+          }
+        }
+      }
+
       if (data) {
         const newProject = {
           ...data[0],
-          file_count: 0
+          file_count: uploadFiles.length
         };
         setProjects([newProject as Project, ...projects]);
         toast.success('Project created successfully!');
         setNewProjectName('');
         setNewProjectDescription('');
+        setUploadFiles([]);
         setShowNewProject(false);
       }
     } catch (error) {
@@ -182,6 +241,16 @@ export default function Dashboard() {
       }
       setCreateError(error instanceof Error ? error.message : 'Unknown error');
       toast.error('Failed to create project. Check console for details.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  // Handle file selection
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      setUploadFiles(filesArray);
     }
   };
 
@@ -289,18 +358,79 @@ export default function Dashboard() {
                   placeholder="Describe your project"
                 />
               </div>
+              <div>
+                <label htmlFor="knowledgeFiles" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Add Knowledge Files (Optional)
+                </label>
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-dark-300 border-dashed rounded-md">
+                  <div className="space-y-1 text-center">
+                    <FiUpload className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="flex text-sm text-gray-600 dark:text-gray-400">
+                      <label
+                        htmlFor="file-upload"
+                        className="relative cursor-pointer bg-white dark:bg-dark-200 rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500"
+                      >
+                        <span>Upload files</span>
+                        <input 
+                          id="file-upload" 
+                          name="file-upload" 
+                          type="file" 
+                          className="sr-only"
+                          multiple
+                          accept=".pdf,.txt,.md" 
+                          onChange={handleFileChange}
+                        />
+                      </label>
+                      <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      PDF, TXT, or MD up to 10MB
+                    </p>
+                    {uploadFiles.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-sm text-gray-600 dark:text-gray-400">
+                          {uploadFiles.length} file(s) selected
+                        </p>
+                        <ul className="mt-1 text-xs text-left text-gray-500 max-h-24 overflow-y-auto">
+                          {uploadFiles.map((file, index) => (
+                            <li key={index} className="truncate">
+                              {file.name} ({(file.size / 1024).toFixed(1)} KB)
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
               <div className="flex justify-end space-x-3">
                 <button
-                  onClick={() => setShowNewProject(false)}
+                  onClick={() => {
+                    setShowNewProject(false);
+                    setNewProjectName('');
+                    setNewProjectDescription('');
+                    setUploadFiles([]);
+                  }}
                   className="px-4 py-2 border border-gray-300 dark:border-dark-300 text-gray-700 dark:text-gray-300 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-dark-300 transition duration-300"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={createNewProject}
-                  className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
+                  disabled={isUploading}
+                  className={`flex items-center px-4 py-2 ${isUploading ? 'bg-primary-400' : 'bg-primary-600 hover:bg-primary-700'} text-white rounded-md shadow-sm transition duration-300`}
                 >
-                  Create Project
+                  {isUploading ? (
+                    <>
+                      <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Creating...
+                    </>
+                  ) : (
+                    <>Create Project</>
+                  )}
                 </button>
               </div>
             </div>
@@ -328,42 +458,43 @@ export default function Dashboard() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {projects.map((project) => (
-              <div key={project.id} className="bg-white dark:bg-dark-100 rounded-lg shadow-md overflow-hidden">
-                <div className="p-6">
-                  <div className="flex justify-between items-start">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2 truncate">{project.name}</h3>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => router.push(`/projects/${project.id}`)}
-                        className="text-gray-500 hover:text-primary-600 dark:text-gray-400 dark:hover:text-primary-400"
-                      >
-                        <FiEdit2 />
-                      </button>
-                      <button
-                        onClick={() => deleteProject(project.id)}
-                        className="text-gray-500 hover:text-red-500 dark:text-gray-400 dark:hover:text-red-400"
-                      >
-                        <FiTrash2 />
-                      </button>
-                    </div>
-                  </div>
+              <div key={project.id} className="bg-white dark:bg-dark-100 rounded-lg shadow-md overflow-hidden flex flex-col h-full">
+                <div className="p-6 flex-grow">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 truncate">{project.name}</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
                     {project.description || "No description provided"}
                   </p>
-                  <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400">
+                  <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mb-4">
                     <span className="flex items-center">
                       <FiFileText className="mr-1" /> {project.file_count} files
                     </span>
                     <span>Created {formatDate(project.created_at)}</span>
                   </div>
-                </div>
-                <div className="bg-gray-50 dark:bg-dark-200 px-6 py-3">
-                  <button
-                    onClick={() => router.push(`/projects/${project.id}`)}
-                    className="w-full text-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium"
-                  >
-                    View Project
-                  </button>
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => router.push(`/generator?projectId=${project.id}`)}
+                      className="w-full flex items-center justify-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
+                    >
+                      <FiFileText className="mr-2" />
+                      Generate Content
+                    </button>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => router.push(`/projects/${project.id}`)}
+                        className="flex-1 flex items-center justify-center px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-dark-200 dark:hover:bg-dark-300 text-gray-700 dark:text-gray-300 rounded-md shadow-sm transition duration-300"
+                      >
+                        <FiEdit2 className="mr-2" />
+                        Edit Project
+                      </button>
+                      <button
+                        onClick={() => deleteProject(project.id)}
+                        className="flex-1 flex items-center justify-center px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-md shadow-sm transition duration-300"
+                      >
+                        <FiTrash2 className="mr-2" />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
