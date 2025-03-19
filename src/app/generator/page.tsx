@@ -38,18 +38,15 @@ export default function ContentGenerator() {
       return;
     }
 
-    fetchProjects();
-
-    // Check for projectId in URL
+    // Get projectId from URL first
     const urlParams = new URLSearchParams(window.location.search);
     const projectIdFromUrl = urlParams.get('projectId');
-    if (projectIdFromUrl) {
-      console.log("Project ID from URL:", projectIdFromUrl);
-      setSelectedProject(projectIdFromUrl);
-    }
+    
+    // Then fetch projects and handle the selection
+    fetchProjects(projectIdFromUrl);
   }, [user, router]);
 
-  const fetchProjects = async () => {
+  const fetchProjects = async (projectIdFromUrl?: string | null) => {
     try {
       setProjectLoading(true);
       const { data, error } = await supabase
@@ -62,7 +59,10 @@ export default function ContentGenerator() {
 
       if (data) {
         setProjects(data);
-        if (data.length > 0) {
+        // Set selected project based on URL parameter or default to first project
+        if (projectIdFromUrl && data.some(project => project.id === projectIdFromUrl)) {
+          setSelectedProject(projectIdFromUrl);
+        } else if (data.length > 0) {
           setSelectedProject(data[0].id);
         }
       }
