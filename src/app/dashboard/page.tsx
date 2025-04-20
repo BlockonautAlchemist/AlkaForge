@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { FiPlus, FiFolder, FiEdit2, FiTrash2, FiFileText, FiUpload } from 'react-icons/fi';
+import { FiPlus, FiFolder, FiEdit, FiTrash, FiFile, FiArrowUpCircle } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 type Project = {
@@ -14,6 +14,12 @@ type Project = {
   description: string;
   created_at: string;
   file_count: number;
+};
+
+type File = {
+  name: string;
+  size: number;
+  type: string;
 };
 
 export default function Dashboard() {
@@ -77,7 +83,7 @@ export default function Dashboard() {
 
       if (data) {
         // Set file_count to 0 for all projects since we're not querying knowledge_files
-        const projectsWithFileCount = data.map(project => ({
+        const projectsWithFileCount = data.map((project: Project) => ({
           ...project,
           file_count: 0
         }));
@@ -170,7 +176,7 @@ export default function Dashboard() {
       if (data && uploadFiles.length > 0) {
         const projectId = data[0].id;
         const allowedTypes = ['application/pdf', 'text/plain', 'text/markdown'];
-        const validFiles = uploadFiles.filter(file => allowedTypes.includes(file.type));
+        const validFiles = uploadFiles.filter((file: File) => allowedTypes.includes(file.type));
         
         if (validFiles.length === 0) {
           toast.error('Only PDF, TXT, and MD files are allowed.');
@@ -295,7 +301,7 @@ export default function Dashboard() {
         throw error;
       }
 
-      setProjects(projects.filter(p => p.id !== projectId));
+      setProjects(projects.filter((p: Project) => p.id !== projectId));
       toast.success('Project deleted successfully!');
     } catch (error) {
       console.error('Error deleting project:', error);
@@ -317,31 +323,31 @@ export default function Dashboard() {
             onClick={() => setShowNewProject(!showNewProject)}
             className="flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
           >
-            <FiPlus className="mr-2" /> New Project
+            <FiPlus className="mr-2" /> New Topic
           </button>
         </div>
 
         {showNewProject && (
           <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Create New Project</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Create New Topic</h2>
             {createError && (
               <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-4 rounded-md mb-4">
-                <p className="font-medium">Error creating project:</p>
+                <p className="font-medium">Error creating topic:</p>
                 <p>{createError}</p>
               </div>
             )}
             <div className="space-y-4">
               <div>
                 <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Project Name*
+                  Topic Name*
                 </label>
                 <input
                   id="projectName"
                   type="text"
                   value={newProjectName}
-                  onChange={(e) => setNewProjectName(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewProjectName(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="My Project"
+                  placeholder="My Topic"
                   required
                 />
               </div>
@@ -352,10 +358,10 @@ export default function Dashboard() {
                 <textarea
                   id="projectDescription"
                   value={newProjectDescription}
-                  onChange={(e) => setNewProjectDescription(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewProjectDescription(e.target.value)}
                   rows={3}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Describe your project"
+                  placeholder="Describe your topic"
                 />
               </div>
               <div>
@@ -364,7 +370,7 @@ export default function Dashboard() {
                 </label>
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-dark-300 border-dashed rounded-md">
                   <div className="space-y-1 text-center">
-                    <FiUpload className="mx-auto h-12 w-12 text-gray-400" />
+                    <FiArrowUpCircle className="mx-auto h-12 w-12 text-gray-400" />
                     <div className="flex text-sm text-gray-600 dark:text-gray-400">
                       <label
                         htmlFor="file-upload"
@@ -392,7 +398,7 @@ export default function Dashboard() {
                           {uploadFiles.length} file(s) selected
                         </p>
                         <ul className="mt-1 text-xs text-left text-gray-500 max-h-24 overflow-y-auto">
-                          {uploadFiles.map((file, index) => (
+                          {uploadFiles.map((file: File, index: number) => (
                             <li key={index} className="truncate">
                               {file.name} ({(file.size / 1024).toFixed(1)} KB)
                             </li>
@@ -429,7 +435,7 @@ export default function Dashboard() {
                       Creating...
                     </>
                   ) : (
-                    <>Create Project</>
+                    <>Create Topic</>
                   )}
                 </button>
               </div>
@@ -444,20 +450,20 @@ export default function Dashboard() {
         ) : projects.length === 0 ? (
           <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-8 text-center">
             <FiFolder className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No projects found</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No topics found</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Create your first project to start organizing your content.
+              Create your first topic to start organizing your content.
             </p>
             <button
               onClick={() => setShowNewProject(true)}
               className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
             >
-              Create Your First Project
+              Create Your First Topic
             </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project) => (
+            {projects.map((project: Project) => (
               <div key={project.id} className="bg-white dark:bg-dark-100 rounded-lg shadow-md overflow-hidden flex flex-col h-full">
                 <div className="p-6 flex-grow">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 truncate">{project.name}</h3>
@@ -466,7 +472,7 @@ export default function Dashboard() {
                   </p>
                   <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mb-4">
                     <span className="flex items-center">
-                      <FiFileText className="mr-1" /> {project.file_count} files
+                      <FiFile className="mr-1" /> {project.file_count} files
                     </span>
                     <span>Created {formatDate(project.created_at)}</span>
                   </div>
@@ -475,7 +481,7 @@ export default function Dashboard() {
                       onClick={() => router.push(`/generator?projectId=${project.id}`)}
                       className="w-full flex items-center justify-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
                     >
-                      <FiFileText className="mr-2" />
+                      <FiFile className="mr-2" />
                       Generate Content
                     </button>
                     <div className="flex space-x-2">
@@ -483,14 +489,14 @@ export default function Dashboard() {
                         onClick={() => router.push(`/projects/${project.id}`)}
                         className="flex-1 flex items-center justify-center px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-dark-200 dark:hover:bg-dark-300 text-gray-700 dark:text-gray-300 rounded-md shadow-sm transition duration-300"
                       >
-                        <FiEdit2 className="mr-2" />
-                        Edit Project
+                        <FiEdit className="mr-2" />
+                        Edit Topic
                       </button>
                       <button
                         onClick={() => deleteProject(project.id)}
                         className="flex-1 flex items-center justify-center px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-md shadow-sm transition duration-300"
                       >
-                        <FiTrash2 className="mr-2" />
+                        <FiTrash className="mr-2" />
                         Delete
                       </button>
                     </div>

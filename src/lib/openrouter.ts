@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 
 type OpenRouterResponse = {
   choices: {
@@ -280,11 +280,12 @@ export async function generateContent({
     console.error('Error generating content with Claude:', error);
     
     if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError;
       console.error('Axios error details:', {
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        headers: error.response?.headers
+        status: axiosError.response?.status,
+        statusText: axiosError.response?.statusText,
+        data: axiosError.response?.data,
+        headers: axiosError.response?.headers
       });
     }
     

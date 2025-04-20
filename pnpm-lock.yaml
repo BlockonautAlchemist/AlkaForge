@@ -18,7 +18,7 @@ importers:
         specifier: ^10.4.18
         version: 10.4.21(postcss@8.5.3)
       axios:
-        specifier: ^1.6.7
+        specifier: ^1.8.2
         version: 1.8.2
       firebase:
         specifier: ^10.9.0
@@ -45,7 +45,7 @@ importers:
         specifier: ^2.4.1
         version: 2.5.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-icons:
-        specifier: ^5.0.1
+        specifier: ^5.5.0
         version: 5.5.0(react@18.3.1)
       react-markdown:
         specifier: ^9.0.1
@@ -54,9 +54,6 @@ importers:
         specifier: ^3.4.1
         version: 3.4.17
     devDependencies:
-      '@types/axios':
-        specifier: ^0.14.4
-        version: 0.14.4
       '@types/formidable':
         specifier: ^3.4.5
         version: 3.4.5
@@ -492,10 +489,6 @@ packages:
     resolution: {integrity: sha512-0wDLwCVF5V3x3b1SGXPCDcdsbDHMBe+lkFzBRaHeLvNi+nrrnZ1lA18u+OTWO8iSWU2GxUOCvlXtDuqftc1oiA==}
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders || >=4.0.0-alpha.20 || >=4.0.0-beta.1'
-
-  '@types/axios@0.14.4':
-    resolution: {integrity: sha512-9JgOaunvQdsQ/qW2OPmE5+hCeUB52lQSolecrFrthct55QekhmXEwT203s20RL+UHtCQc15y3VXpby9E7Kkh/g==}
-    deprecated: This is a stub types definition. axios provides its own type definitions, so you do not need this installed.
 
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
@@ -2884,12 +2877,6 @@ snapshots:
       lodash.merge: 4.6.2
       postcss-selector-parser: 6.0.10
       tailwindcss: 3.4.17
-
-  '@types/axios@0.14.4':
-    dependencies:
-      axios: 1.8.2
-    transitivePeerDependencies:
-      - debug
 
   '@types/debug@4.1.12':
     dependencies:

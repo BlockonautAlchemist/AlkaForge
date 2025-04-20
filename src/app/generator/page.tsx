@@ -7,7 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { generateContent } from '@/lib/openrouter';
 import { extractTextFromFiles } from '@/lib/fileUtils';
-import { FiCpu, FiCopy, FiTwitter, FiMessageSquare, FiMessageCircle, FiSend } from 'react-icons/fi';
+import { AiOutlineRobot, AiOutlineCopy, AiOutlineTwitter, AiOutlineMessage, AiOutlineSend } from 'react-icons/ai';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 
@@ -18,6 +18,12 @@ type Project = {
 
 type ContentType = 'post' | 'thread' | 'reply' | 'discord';
 type ToneType = 'informative' | 'viral' | 'professional' | 'casual';
+
+type KnowledgeFile = {
+  name: string;
+  file_type: string;
+  size: number;
+};
 
 export default function ContentGenerator() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -60,7 +66,7 @@ export default function ContentGenerator() {
       if (data) {
         setProjects(data);
         // Set selected project based on URL parameter or default to first project
-        if (projectIdFromUrl && data.some(project => project.id === projectIdFromUrl)) {
+        if (projectIdFromUrl && data.some((project: Project) => project.id === projectIdFromUrl)) {
           setSelectedProject(projectIdFromUrl);
         } else if (data.length > 0) {
           setSelectedProject(data[0].id);
@@ -114,7 +120,7 @@ export default function ContentGenerator() {
       if (files && files.length > 0) {
         toast.success(`Using ${files.length} knowledge files for context.`);
         console.log("Knowledge files found:", files.length);
-        console.log("Files:", files.map(f => ({ name: f.name, type: f.file_type, size: f.size })));
+        console.log("Files:", files.map((f: KnowledgeFile) => ({ name: f.name, type: f.file_type, size: f.size })));
         
         try {
           // Extract text from files
@@ -192,13 +198,13 @@ export default function ContentGenerator() {
   const getContentTypeIcon = () => {
     switch (contentType) {
       case 'post':
-        return <FiTwitter className="mr-2" />;
+        return <AiOutlineTwitter className="mr-2" />;
       case 'thread':
-        return <FiMessageCircle className="mr-2" />;
+        return <AiOutlineMessage className="mr-2" />;
       case 'reply':
-        return <FiMessageSquare className="mr-2" />;
+        return <AiOutlineMessage className="mr-2" />;
       case 'discord':
-        return <FiSend className="mr-2" />;
+        return <AiOutlineSend className="mr-2" />;
       default:
         return null;
     }
@@ -235,15 +241,15 @@ export default function ContentGenerator() {
               <div className="space-y-6">
                 <div>
                   <label htmlFor="project" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Project
+                    Topic
                   </label>
                   <select
                     id="project"
                     value={selectedProject}
-                    onChange={(e) => setSelectedProject(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedProject(e.target.value)}
                     className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   >
-                    {projects.map((project) => (
+                    {projects.map((project: Project) => (
                       <option key={project.id} value={project.id}>
                         {project.name}
                       </option>
@@ -259,7 +265,7 @@ export default function ContentGenerator() {
                     <select
                       id="contentType"
                       value={contentType}
-                      onChange={(e) => setContentType(e.target.value as ContentType)}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setContentType(e.target.value as ContentType)}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     >
                       <option value="post">X Post</option>
@@ -276,7 +282,7 @@ export default function ContentGenerator() {
                     <select
                       id="tone"
                       value={tone}
-                      onChange={(e) => setTone(e.target.value as ToneType)}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTone(e.target.value as ToneType)}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     >
                       <option value="informative">Informative</option>
@@ -294,7 +300,7 @@ export default function ContentGenerator() {
                   <textarea
                     id="prompt"
                     value={prompt}
-                    onChange={(e) => setPrompt(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
                     rows={8}
                     className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     placeholder="Enter your content ideas or raw text here..."
@@ -311,7 +317,7 @@ export default function ContentGenerator() {
                         : 'bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
                     }`}
                   >
-                    <FiCpu className="mr-2" />
+                    <AiOutlineRobot className="mr-2" />
                     {loading ? 'Generating...' : 'Generate Content'}
                   </button>
                 </div>
@@ -333,7 +339,7 @@ export default function ContentGenerator() {
                     onClick={copyToClipboard}
                     className="flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
                   >
-                    <FiCopy className="mr-1" /> Copy
+                    <AiOutlineCopy className="mr-1" /> Copy
                   </button>
                 )}
               </div>
@@ -345,13 +351,20 @@ export default function ContentGenerator() {
                   </div>
                 ) : generatedContent ? (
                   contentType === 'discord' ? (
-                    <ReactMarkdown>{generatedContent}</ReactMarkdown>
+                    <ReactMarkdown components={{
+                      p: ({ children }: { children: React.ReactNode | React.ReactNode[] }) => {
+                        const content = Array.isArray(children) ? children.join('') : String(children);
+                        return <p>{content}</p>;
+                      }
+                    }}>
+                      {generatedContent}
+                    </ReactMarkdown>
                   ) : (
                     <div className="whitespace-pre-wrap">{generatedContent}</div>
                   )
                 ) : (
                   <div className="text-gray-500 dark:text-gray-400 flex flex-col items-center justify-center h-full text-center">
-                    <FiCpu className="h-12 w-12 mb-4 text-gray-300 dark:text-gray-600" />
+                    <AiOutlineRobot className="h-12 w-12 mb-4 text-gray-300 dark:text-gray-600" />
                     <p>Generated content will appear here</p>
                   </div>
                 )}
