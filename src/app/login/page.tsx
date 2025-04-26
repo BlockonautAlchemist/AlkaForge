@@ -2,10 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
-import { FiMail, FiLock, FiAlertCircle } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 export default function Login() {
@@ -17,7 +15,7 @@ export default function Login() {
   const router = useRouter();
   const { signIn } = useAuth();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -50,7 +48,7 @@ export default function Login() {
 
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-4 rounded-md mb-6 flex items-start">
-              <FiAlertCircle className="mr-2 mt-0.5 flex-shrink-0" />
+              <span className="mr-2 mt-0.5 flex-shrink-0">⚠️</span>
               <span>{error}</span>
             </div>
           )}
@@ -62,14 +60,14 @@ export default function Login() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FiMail className="text-gray-400" />
+                  <span className="text-gray-400">📧</span>
                 </div>
                 <input
                   id="email"
                   type="email"
                   required
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                   className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="you@example.com"
                 />
@@ -82,14 +80,14 @@ export default function Login() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FiLock className="text-gray-400" />
+                  <span className="text-gray-400">🔒</span>
                 </div>
                 <input
                   id="password"
                   type="password"
                   required
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
                   className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                   placeholder="••••••••"
                 />
@@ -114,9 +112,9 @@ export default function Login() {
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               Don't have an account?{' '}
-              <Link href="/signup" className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500">
+              <a href="/signup" className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500">
                 Sign up
-              </Link>
+              </a>
             </p>
           </div>
         </div>
