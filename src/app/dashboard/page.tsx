@@ -336,7 +336,7 @@ export default function Dashboard() {
             onClick={() => setShowNewProject(!showNewProject)}
             className="flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
           >
-            <FiPlus size={20} /> New Topic
+            <span className="mr-2"><FiPlus size={20} /></span> New Topic
           </button>
         </div>
 
@@ -383,7 +383,9 @@ export default function Dashboard() {
                 </label>
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-dark-300 border-dashed rounded-md">
                   <div className="space-y-1 text-center">
-                    <FiFile size={20} className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="mx-auto h-12 w-12 text-gray-400">
+                      <FiFile size={20} />
+                    </div>
                     <div className="flex text-sm text-gray-600 dark:text-gray-400">
                       <label
                         htmlFor="file-upload"
@@ -462,7 +464,9 @@ export default function Dashboard() {
           </div>
         ) : projects.length === 0 ? (
           <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-8 text-center">
-            <FiFolder size={20} className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-600 mb-4" />
+            <div className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-600 mb-4">
+              <FiFolder size={20} />
+            </div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No topics found</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
               Create your first topic to start organizing your content.
@@ -485,7 +489,7 @@ export default function Dashboard() {
                   </p>
                   <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mb-4">
                     <span className="flex items-center">
-                      <FiFile size={20} className="mr-1" /> {project.file_count} files
+                      <span className="mr-1"><FiFile size={20} /></span> {project.file_count} files
                     </span>
                     <span>Created {formatDate(project.created_at)}</span>
                   </div>
@@ -494,7 +498,7 @@ export default function Dashboard() {
                       onClick={() => router.push(`/generator?projectId=${project.id}`)}
                       className="w-full flex items-center justify-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
                     >
-                      <FiFile size={20} className="mr-2" />
+                      <span className="mr-2"><FiFile size={20} /></span>
                       Generate Content
                     </button>
                     <div className="flex space-x-2">
@@ -502,14 +506,14 @@ export default function Dashboard() {
                         onClick={() => router.push(`/projects/${project.id}`)}
                         className="flex-1 flex items-center justify-center px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-dark-200 dark:hover:bg-dark-300 text-gray-700 dark:text-gray-300 rounded-md shadow-sm transition duration-300"
                       >
-                        <FiEdit size={20} className="mr-2" />
+                        <span className="mr-2"><FiEdit size={20} /></span>
                         Edit Topic
                       </button>
                       <button
                         onClick={() => deleteProject(project.id)}
                         className="flex-1 flex items-center justify-center px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-md shadow-sm transition duration-300"
                       >
-                        <FiTrash size={20} className="mr-2" />
+                        <span className="mr-2"><FiTrash size={20} /></span>
                         Delete
                       </button>
                     </div>
