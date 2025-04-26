@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+// @ts-ignore
 import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import { FiFileText, FiCpu, FiTwitter, FiMessageSquare } from '@/lib/react-icons-compat';

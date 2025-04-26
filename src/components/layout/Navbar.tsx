@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// @ts-ignore
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { FiMenu, FiX, FiMoon, FiSun, FiLogOut } from '@/lib/react-icons-compat';

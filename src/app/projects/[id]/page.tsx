@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
@@ -116,7 +116,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         console.log("Number of files found:", filesData.length);
         
         // Log each file to check their properties
-        filesData.forEach((file, index) => {
+        filesData.forEach((file: any, index: number) => {
           console.log(`File ${index + 1}:`, file);
           console.log(`- ID: ${file.id}`);
           console.log(`- Name: ${file.name}`);
@@ -325,7 +325,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
       }
 
       // Update the files state
-      setFiles(files.filter(file => file.id !== fileId));
+      setFiles(files.filter((file: KnowledgeFile) => file.id !== fileId));
       toast.success('File deleted successfully!');
     } catch (error) {
       console.error('Error deleting file:', error);
