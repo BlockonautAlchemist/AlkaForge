@@ -16,6 +16,13 @@ type Project = {
   file_count: number;
 };
 
+type RawProject = {
+  id: string;
+  name: string;
+  description: string;
+  created_at: string;
+};
+
 type File = {
   name: string;
   size: number;
@@ -83,7 +90,7 @@ export default function Dashboard() {
 
       if (data) {
         // Set file_count to 0 for all projects since we're not querying knowledge_files
-        const projectsWithFileCount = data.map((project: Project) => ({
+        const projectsWithFileCount = data.map((project: RawProject) => ({
           ...project,
           file_count: 0
         }));
