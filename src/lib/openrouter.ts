@@ -15,6 +15,7 @@ type ContentGenerationParams = {
   maxTokens?: number;
   knowledgeContent?: string;
   customPrompt?: string;
+  firstThreadHook?: string;
 };
 
 export async function generateContent({
@@ -23,7 +24,8 @@ export async function generateContent({
   tone = 'informative',
   maxTokens = 1000,
   knowledgeContent = '',
-  customPrompt
+  customPrompt,
+  firstThreadHook
 }: ContentGenerationParams): Promise<string> {
   try {
     console.log("Starting content generation with OpenRouter");
@@ -170,7 +172,10 @@ export async function generateContent({
 
     messages.push({
       role: 'user',
-      content: `MAIN PROMPT (from user):\n${prompt}\n\n${customPrompt ? `Additional instructions: ${customPrompt}\n\n` : ''}${knowledgeContent ? 'You may use the following knowledge content as supporting context, but the MAIN PROMPT above is the primary focus.' : ''}`
+      content:
+        contentType === 'thread' && firstThreadHook
+          ? `MAIN PROMPT (from user):\n${prompt}\n\n${customPrompt ? `Additional instructions: ${customPrompt}\n\n` : ''}The first tweet in the thread MUST be exactly as follows (do not change it):\n${firstThreadHook}\n\nContinue the thread with 4 more tweets, following the same style and tone.\n${knowledgeContent ? 'You may use the following knowledge content as supporting context, but the MAIN PROMPT above is the primary focus.' : ''}`
+          : `MAIN PROMPT (from user):\n${prompt}\n\n${customPrompt ? `Additional instructions: ${customPrompt}\n\n` : ''}${knowledgeContent ? 'You may use the following knowledge content as supporting context, but the MAIN PROMPT above is the primary focus.' : ''}`
     });
 
     console.log("Sending request to OpenRouter API");
@@ -293,4 +298,63 @@ export async function generateContent({
     
     throw new Error(`Failed to generate content: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
+}
+
+export async function generateXThreadHooks({ prompt, tone }: { prompt: string, tone: string }): Promise<string[]> {
+  const systemPrompt = `You are an expert Twitter copywriter. Generate 3 highly engaging Twitter thread hooks, each under 280 characters, that would make someone want to read a thread about the following content. Each hook should:
+- Be optimized for X (Twitter) best practices
+- Be unique and attention-grabbing
+- Be relevant to the content provided
+- Match the following tone: ${tone}
+- Not use hashtags or numbering
+- Be formatted as a plain list (no JSON, just 1. ..., 2. ..., 3. ...)
+
+CONTENT:
+${prompt}`;
+
+  const messages = [
+    { role: 'system', content: systemPrompt }
+  ];
+
+  const apiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || '';
+  if (!apiKey) {
+    throw new Error("OpenRouter API key is missing. Please check your environment variables.");
+  }
+
+  const requestBody = {
+    model: "anthropic/claude-3.7-sonnet",
+    messages: messages,
+    max_tokens: 600,
+    temperature: 0.8,
+    top_p: 1,
+    stream: false
+  };
+
+  const response = await axios.post<OpenRouterResponse>(
+    'https://openrouter.ai/api/v1/chat/completions',
+    requestBody,
+    {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': 'https://alkaforge.vercel.app',
+        'X-Title': 'AlkaForge',
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+
+  if (!response.data || !response.data.choices || response.data.choices.length === 0) {
+    throw new Error("No hooks generated");
+  }
+
+  // Parse hooks from the response
+  const hooksRaw = response.data.choices[0].message.content;
+  // Expecting format: 1. ...\n2. ...\n3. ...
+  const hooks = hooksRaw
+    .split(/\n+/)
+    .map(line => line.replace(/^\d+\.\s*/, '').trim())
+    .filter(line => line.length > 0)
+    .slice(0, 3);
+
+  return hooks;
 } 

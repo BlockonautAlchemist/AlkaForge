@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { generateContent } from '@/lib/openrouter';
+import { generateContent, generateXThreadHooks } from '@/lib/openrouter';
 import { extractTextFromFiles } from '@/lib/fileUtils';
 import { AiOutlineRobot, AiOutlineCopy, AiOutlineTwitter, AiOutlineMessage, AiOutlineSend } from 'react-icons/ai';
 import toast from 'react-hot-toast';
@@ -35,6 +35,9 @@ export default function ContentGenerator() {
   const [generatedContent, setGeneratedContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [projectLoading, setProjectLoading] = useState(true);
+  const [threadHooks, setThreadHooks] = useState<string[]>([]);
+  const [selectedHook, setSelectedHook] = useState<string | null>(null);
+  const [showHookSelection, setShowHookSelection] = useState(false);
 
   const router = useRouter();
   const { user } = useAuth();
@@ -95,6 +98,21 @@ export default function ContentGenerator() {
     setLoading(true);
     setGeneratedContent('');
 
+    // X Thread: Step 1 - Generate hooks first
+    if (contentType === 'thread' && !selectedHook) {
+      try {
+        const hooks = await generateXThreadHooks({ prompt, tone });
+        setThreadHooks(hooks);
+        setShowHookSelection(true);
+      } catch (err) {
+        toast.error('Failed to generate hooks.');
+        setShowHookSelection(false);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     try {
       console.log("Starting content generation process");
       console.log("Selected project:", selectedProject);
@@ -144,9 +162,11 @@ export default function ContentGenerator() {
 
       console.log("Calling OpenRouter API to generate content");
       
+      // When generating the thread, prepend the selected hook if present
+      const threadPrompt = contentType === 'thread' && selectedHook ? `${selectedHook}\n\n${prompt}` : prompt;
       // Generate content using Claude with knowledge context
       const content = await generateContent({
-        prompt: prompt,
+        prompt: threadPrompt,
         contentType,
         tone,
         maxTokens: contentType === 'thread' ? 2000 : 1000,
@@ -175,6 +195,9 @@ export default function ContentGenerator() {
       }
 
       toast.success('Content generated successfully!');
+      setSelectedHook(null);
+      setThreadHooks([]);
+      setShowHookSelection(false);
     } catch (error) {
       console.error('Error generating content:', error);
       
@@ -187,6 +210,60 @@ export default function ContentGenerator() {
       }
       
       toast.error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // New function to handle generating the thread after hook selection
+  const handleGenerateThreadWithHook = async (hook: string) => {
+    setSelectedHook(hook);
+    setShowHookSelection(false);
+    setLoading(true);
+    setGeneratedContent('');
+    try {
+      // Fetch knowledge files as in handleGenerate
+      const { data: files, error: filesError } = await supabase
+        .from('knowledge_files')
+        .select('name, url, file_type, size')
+        .eq('project_id', selectedProject);
+      let knowledgeContent = '';
+      if (files && files.length > 0) {
+        try {
+          knowledgeContent = await extractTextFromFiles(files);
+          if (knowledgeContent.length > 100000) {
+            knowledgeContent = knowledgeContent.substring(0, 100000) + '... [content truncated due to length]';
+          }
+        } catch {
+          knowledgeContent = '';
+        }
+      }
+      const threadPrompt = `${hook}\n\n${prompt}`;
+      const content = await generateContent({
+        prompt: threadPrompt,
+        contentType,
+        tone,
+        maxTokens: 2000,
+        knowledgeContent: knowledgeContent,
+        customPrompt: customPrompt.trim() ? customPrompt : undefined,
+        firstThreadHook: hook
+      });
+      setGeneratedContent(content);
+      setSelectedHook(null);
+      setThreadHooks([]);
+      setShowHookSelection(false);
+      // Save to history
+      await supabase.from('content_history').insert({
+        user_id: user?.id,
+        project_id: selectedProject,
+        prompt: threadPrompt,
+        content: content,
+        content_type: contentType,
+        tone: tone
+      });
+      toast.success('Content generated successfully!');
+    } catch (error) {
+      toast.error('Failed to generate thread.');
     } finally {
       setLoading(false);
     }
@@ -337,6 +414,24 @@ export default function ContentGenerator() {
                     {loading ? 'Generating...' : 'Generate Content'}
                   </button>
                 </div>
+                {showHookSelection && threadHooks.length > 0 && (
+                  <div className="mt-6 p-4 border border-primary-300 rounded-md bg-primary-50 dark:bg-dark-200">
+                    <h3 className="text-lg font-semibold mb-2 text-primary-700 dark:text-primary-300">Choose a hook to start your thread:</h3>
+                    <ul className="space-y-2">
+                      {threadHooks.map((hook: string, idx: number) => (
+                        <li key={idx}>
+                          <button
+                            className={`w-full text-left px-4 py-2 rounded-md border border-primary-300 bg-white dark:bg-dark-100 hover:bg-primary-100 dark:hover:bg-dark-300 transition ${selectedHook === hook ? 'ring-2 ring-primary-500' : ''}`}
+                            onClick={() => handleGenerateThreadWithHook(hook)}
+                            disabled={loading}
+                          >
+                            {hook}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </div>
 
