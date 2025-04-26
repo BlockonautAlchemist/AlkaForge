@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
+import { FiMail, FiLock, FiAlertCircle } from '@/lib/react-icons-compat';
 import toast from 'react-hot-toast';
 
 export default function Login() {
@@ -48,7 +49,7 @@ export default function Login() {
 
           {error && (
             <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-4 rounded-md mb-6 flex items-start">
-              <span className="mr-2 mt-0.5 flex-shrink-0">⚠️</span>
+              <FiAlertCircle className="mr-2 mt-0.5 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
@@ -60,7 +61,7 @@ export default function Login() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-400">📧</span>
+                  <FiMail className="text-gray-400" />
                 </div>
                 <input
                   id="email"
@@ -80,7 +81,7 @@ export default function Login() {
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <span className="text-gray-400">🔒</span>
+                  <FiLock className="text-gray-400" />
                 </div>
                 <input
                   id="password"
