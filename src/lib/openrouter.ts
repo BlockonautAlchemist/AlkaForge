@@ -170,7 +170,7 @@ export async function generateContent({
 
     messages.push({
       role: 'user',
-      content: `Create a ${contentType} with a ${tone} tone for the following prompt. ${contentType === 'thread' ? 'Format the response as a JSON object with part1 through part5 keys.' : ''}${customPrompt ? `\n\nAdditional instructions: ${customPrompt}` : ''}\n\n${prompt}`
+      content: `MAIN PROMPT (from user):\n${prompt}\n\n${customPrompt ? `Additional instructions: ${customPrompt}\n\n` : ''}${knowledgeContent ? 'You may use the following knowledge content as supporting context, but the MAIN PROMPT above is the primary focus.' : ''}`
     });
 
     console.log("Sending request to OpenRouter API");
