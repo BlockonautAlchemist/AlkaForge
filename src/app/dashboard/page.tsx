@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { FiPlus, FiFolder, FiEdit, FiTrash, FiFile, FiArrowUpCircle } from 'react-icons/fi';
+import { FiPlus, FiFolder, FiEdit, FiTrash, FiFile } from 'react-icons/fi';
 import toast from 'react-hot-toast';
 
 type Project = {
@@ -370,7 +370,7 @@ export default function Dashboard() {
                 </label>
                 <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-dark-300 border-dashed rounded-md">
                   <div className="space-y-1 text-center">
-                    <FiArrowUpCircle className="mx-auto h-12 w-12 text-gray-400" />
+                    <FiFile className="mx-auto h-12 w-12 text-gray-400" />
                     <div className="flex text-sm text-gray-600 dark:text-gray-400">
                       <label
                         htmlFor="file-upload"
