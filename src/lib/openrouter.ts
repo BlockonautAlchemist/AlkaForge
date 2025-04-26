@@ -63,6 +63,7 @@ export async function generateContent({
         * Each part must be complete and not cut off
         * Use thread hooks and cliffhangers to maintain engagement
         * Format response as JSON with "part1" through "part5" keys
+        * Always end the thread with a call to action that encourages the reader to follow for more content like this and to engage (like, reply, or repost). Use the best practices of top X (Twitter) copywriters for CTAs.
         
         Example Thread Hooks by Tone:
         INFORMATIVE:

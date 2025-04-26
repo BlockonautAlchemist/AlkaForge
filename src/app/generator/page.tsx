@@ -38,6 +38,7 @@ export default function ContentGenerator() {
   const [threadHooks, setThreadHooks] = useState<string[]>([]);
   const [selectedHook, setSelectedHook] = useState<string | null>(null);
   const [showHookSelection, setShowHookSelection] = useState(false);
+  const [hookLoading, setHookLoading] = useState(false);
 
   const router = useRouter();
   const { user } = useAuth();
@@ -101,6 +102,7 @@ export default function ContentGenerator() {
     // X Thread: Step 1 - Generate hooks first
     if (contentType === 'thread' && !selectedHook) {
       try {
+        setHookLoading(true);
         const hooks = await generateXThreadHooks({ prompt, tone });
         setThreadHooks(hooks);
         setShowHookSelection(true);
@@ -108,6 +110,7 @@ export default function ContentGenerator() {
         toast.error('Failed to generate hooks.');
         setShowHookSelection(false);
       } finally {
+        setHookLoading(false);
         setLoading(false);
       }
       return;
@@ -423,13 +426,18 @@ export default function ContentGenerator() {
                           <button
                             className={`w-full text-left px-4 py-2 rounded-md border border-primary-300 bg-white dark:bg-dark-100 hover:bg-primary-100 dark:hover:bg-dark-300 transition ${selectedHook === hook ? 'ring-2 ring-primary-500' : ''}`}
                             onClick={() => handleGenerateThreadWithHook(hook)}
-                            disabled={loading}
+                            disabled={loading || hookLoading}
                           >
                             {hook}
                           </button>
                         </li>
                       ))}
                     </ul>
+                    {hookLoading && (
+                      <div className="flex justify-center items-center mt-4">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -456,7 +464,7 @@ export default function ContentGenerator() {
               </div>
 
               <div className={`border border-gray-200 dark:border-dark-300 rounded-md p-4 min-h-[300px] max-h-[500px] overflow-y-auto ${contentType === 'discord' ? 'prose dark:prose-invert max-w-none' : ''}`}>
-                {loading ? (
+                {loading && (!showHookSelection || contentType !== 'thread') ? (
                   <div className="flex justify-center items-center h-full">
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
                   </div>
