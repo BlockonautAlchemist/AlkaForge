@@ -7,7 +7,6 @@ import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { generateContent, generateXThreadHooks } from '@/lib/openrouter';
 import { extractTextFromFiles } from '@/lib/fileUtils';
-import { AiOutlineRobot, AiOutlineCopy, AiOutlineTwitter, AiOutlineMessage, AiOutlineSend } from 'react-icons/ai';
 import toast from 'react-hot-toast';
 import ReactMarkdown from 'react-markdown';
 
@@ -16,13 +15,24 @@ type Project = {
   name: string;
 };
 
-type ContentType = 'post' | 'thread' | 'reply' | 'discord';
 type ToneType = 'informative' | 'viral' | 'funny' | 'casual';
 
 type KnowledgeFile = {
   name: string;
   file_type: string;
   size: number;
+};
+
+type ContentType = 'post' | 'thread' | 'reply' | 'discord';
+
+// Define the generator config locally since we can't import it
+const generatorConfig = {
+  maxTokens: {
+    post: 1000,
+    thread: 2000,
+    reply: 1000,
+    discord: 1000
+  }
 };
 
 // Utility to safely render generated content as a string
@@ -296,18 +306,7 @@ export default function ContentGenerator() {
   };
 
   const getContentTypeIcon = () => {
-    switch (contentType) {
-      case 'post':
-        return <AiOutlineTwitter className="mr-2" />;
-      case 'thread':
-        return <AiOutlineMessage className="mr-2" />;
-      case 'reply':
-        return <AiOutlineMessage className="mr-2" />;
-      case 'discord':
-        return <AiOutlineSend className="mr-2" />;
-      default:
-        return null;
-    }
+    return null; // Remove all icon components for now
   };
 
   return (
@@ -431,7 +430,6 @@ export default function ContentGenerator() {
                         : 'bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
                     }`}
                   >
-                    <AiOutlineRobot className="mr-2" />
                     {loading ? 'Generating...' : 'Generate Content'}
                   </button>
                 </div>
@@ -476,7 +474,7 @@ export default function ContentGenerator() {
                     onClick={copyToClipboard}
                     className="flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
                   >
-                    <AiOutlineCopy className="mr-1" /> Copy
+                    <span className="mr-1">Copy</span>
                   </button>
                 )}
               </div>
@@ -488,20 +486,14 @@ export default function ContentGenerator() {
                   </div>
                 ) : generatedContent ? (
                   contentType === 'discord' ? (
-                    <ReactMarkdown components={{
-                      p: ({ children }: { children: React.ReactNode | React.ReactNode[] }) => {
-                        const content = Array.isArray(children) ? children.join('') : String(children);
-                        return <p>{content}</p>;
-                      }
-                    }}>
-                      {getSafeContent(generatedContent)}
-                    </ReactMarkdown>
+                    <div className="prose dark:prose-invert max-w-none">
+                      <ReactMarkdown children={getSafeContent(generatedContent)} />
+                    </div>
                   ) : (
                     <div className="whitespace-pre-wrap">{getSafeContent(generatedContent)}</div>
                   )
                 ) : (
                   <div className="text-gray-500 dark:text-gray-400 flex flex-col items-center justify-center h-full text-center">
-                    <AiOutlineRobot className="h-12 w-12 mb-4 text-gray-300 dark:text-gray-600" />
                     <p>Generated content will appear here</p>
                   </div>
                 )}

@@ -1,5 +1,18 @@
 import axios, { AxiosError } from 'axios';
 
+// Use a function to safely get environment variables in Next.js client components
+const getEnvVar = (name: string): string => {
+  // In client-side Next.js, environment variables are prefixed with NEXT_PUBLIC_
+  // and available on the window object or can be imported directly
+  if (typeof window !== 'undefined') {
+    return (window as any).__ENV__?.[name] || '';
+  }
+  return '';
+};
+
+// Get the API key using our safe function
+const OPENROUTER_API_KEY = getEnvVar('NEXT_PUBLIC_OPENROUTER_API_KEY');
+
 type OpenRouterResponse = {
   choices: {
     message: {
@@ -33,7 +46,7 @@ export async function generateContent({
     console.log("Tone:", tone);
     console.log("Max tokens:", maxTokens);
     console.log("Knowledge content length:", knowledgeContent.length);
-    console.log("API Key available:", !!process.env.NEXT_PUBLIC_OPENROUTER_API_KEY);
+    console.log("API Key available:", !!OPENROUTER_API_KEY);
     
     let systemPrompt = `You are an expert content creator specialized in creating engaging ${contentType} content with a ${tone} tone. You MUST format your response EXACTLY according to the selected content type and tone - no exceptions.
 
@@ -152,7 +165,7 @@ export async function generateContent({
 
     console.log("Sending request to OpenRouter API");
     
-    const apiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || '';
+    const apiKey = OPENROUTER_API_KEY;
     if (!apiKey) {
       throw new Error("OpenRouter API key is missing. Please check your environment variables.");
     }
@@ -288,7 +301,7 @@ ${prompt}`;
     { role: 'system', content: systemPrompt }
   ];
 
-  const apiKey = process.env.NEXT_PUBLIC_OPENROUTER_API_KEY || '';
+  const apiKey = OPENROUTER_API_KEY;
   if (!apiKey) {
     throw new Error("OpenRouter API key is missing. Please check your environment variables.");
   }
@@ -324,9 +337,9 @@ ${prompt}`;
   // Expecting format: 1. ...\n2. ...\n3. ...
   const hooks = hooksRaw
     .split(/\n+/)
-    .map(line => line.replace(/^\d+\.\s*/, '').trim())
-    .filter(line => line.length > 0)
+    .map((line: string) => line.replace(/^\d+\.\s*/, '').trim())
+    .filter((line: string) => line.length > 0)
     .slice(0, 3);
 
   return hooks;
-} 
+}
