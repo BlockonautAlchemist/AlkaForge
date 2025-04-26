@@ -17,7 +17,7 @@ type Project = {
 };
 
 type ContentType = 'post' | 'thread' | 'reply' | 'discord';
-type ToneType = 'informative' | 'viral' | 'professional' | 'casual';
+type ToneType = 'informative' | 'viral' | 'funny' | 'casual';
 
 type KnowledgeFile = {
   name: string;
@@ -31,6 +31,7 @@ export default function ContentGenerator() {
   const [contentType, setContentType] = useState<ContentType>('post');
   const [tone, setTone] = useState<ToneType>('informative');
   const [prompt, setPrompt] = useState('');
+  const [customPrompt, setCustomPrompt] = useState('');
   const [generatedContent, setGeneratedContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [projectLoading, setProjectLoading] = useState(true);
@@ -149,7 +150,8 @@ export default function ContentGenerator() {
         contentType,
         tone,
         maxTokens: contentType === 'thread' ? 2000 : 1000,
-        knowledgeContent: knowledgeContent
+        knowledgeContent: knowledgeContent,
+        customPrompt: customPrompt.trim() ? customPrompt : undefined
       });
 
       console.log("Content generated successfully, length:", content.length);
@@ -287,15 +289,29 @@ export default function ContentGenerator() {
                     >
                       <option value="informative">Informative</option>
                       <option value="viral">Viral/Engaging</option>
-                      <option value="professional">Professional</option>
+                      <option value="funny">Funny/Troll</option>
                       <option value="casual">Casual/Conversational</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
+                  <label htmlFor="customPrompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Custom Instructions (Optional)
+                  </label>
+                  <textarea
+                    id="customPrompt"
+                    value={customPrompt}
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCustomPrompt(e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                    placeholder="Add any specific instructions or requirements for the content generation..."
+                  />
+                </div>
+
+                <div>
                   <label htmlFor="prompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Your Prompt
+                    Your Content
                   </label>
                   <textarea
                     id="prompt"

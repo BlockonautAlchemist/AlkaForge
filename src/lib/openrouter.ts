@@ -11,9 +11,10 @@ type OpenRouterResponse = {
 type ContentGenerationParams = {
   prompt: string;
   contentType: 'post' | 'thread' | 'reply' | 'discord';
-  tone?: 'informative' | 'viral' | 'professional' | 'casual';
+  tone?: 'informative' | 'viral' | 'funny' | 'casual';
   maxTokens?: number;
   knowledgeContent?: string;
+  customPrompt?: string;
 };
 
 export async function generateContent({
@@ -21,7 +22,8 @@ export async function generateContent({
   contentType,
   tone = 'informative',
   maxTokens = 1000,
-  knowledgeContent = ''
+  knowledgeContent = '',
+  customPrompt
 }: ContentGenerationParams): Promise<string> {
   try {
     console.log("Starting content generation with OpenRouter");
@@ -123,7 +125,7 @@ export async function generateContent({
     Tone Guidelines:
     - Informative: Focus on facts, data, and clear explanations. Use professional language while remaining accessible. Avoid marketing speak.
     - Viral/Engaging: Create content that sparks emotions and encourages sharing. Use hooks, questions, and relatable examples.
-    - Professional: Maintain a formal tone with industry-specific terminology. Focus on credibility and expertise.
+    - Funny/Troll: Create humorous, meme-worthy content that's intentionally over-the-top or absurd. Use internet culture references, exaggerated reactions, and unexpected twists. Perfect for Twitter-style trolling that makes people laugh.
     - Casual/Conversational: Use friendly, approachable language. Include personal touches and relatable analogies.
 
     Format Rules:
@@ -168,7 +170,7 @@ export async function generateContent({
 
     messages.push({
       role: 'user',
-      content: `Create a ${contentType} with a ${tone} tone for the following prompt. ${contentType === 'thread' ? 'Format the response as a JSON object with part1 through part5 keys.' : ''}\n\n${prompt}`
+      content: `Create a ${contentType} with a ${tone} tone for the following prompt. ${contentType === 'thread' ? 'Format the response as a JSON object with part1 through part5 keys.' : ''}${customPrompt ? `\n\nAdditional instructions: ${customPrompt}` : ''}\n\n${prompt}`
     });
 
     console.log("Sending request to OpenRouter API");
