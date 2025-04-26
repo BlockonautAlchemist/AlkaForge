@@ -7,15 +7,31 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<any>;
-  signUp: (email: string, password: string) => Promise<any>;
+  signUp: (email: string, password: string, fullName?: string) => Promise<any>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Initialize from local storage if available
+const getStoredUser = () => {
+  if (typeof window === 'undefined') return null;
+  const storedUser = localStorage.getItem('alkaforge-user');
+  return storedUser ? JSON.parse(storedUser) : null;
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(getStoredUser());
   const [loading, setLoading] = useState(true);
+
+  // Update localStorage when user changes
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('alkaforge-user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('alkaforge-user');
+    }
+  }, [user]);
 
   useEffect(() => {
     // Check for current user on mount
@@ -39,8 +55,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setLoading(false);
     });
 
+    // Add event listener for page visibility changes
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        // Refresh user data when tab becomes visible again
+        const currentUser = await getCurrentUser();
+        setUser(currentUser || null);
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 

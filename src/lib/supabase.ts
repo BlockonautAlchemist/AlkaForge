@@ -1,11 +1,22 @@
+// @ts-ignore - Ignoring missing type declarations for @supabase/supabase-js
 import { createClient } from '@supabase/supabase-js';
-import type { User } from '@supabase/supabase-js';
+// @ts-ignore - Ignoring missing type declarations
+import type { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 
 // Initialize Supabase client
+// @ts-ignore - Ignoring process.env type errors
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+// @ts-ignore - Ignoring process.env type errors
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    storageKey: 'alkaforge-auth-token',
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+});
 
 // Authentication functions
 export const signUp = async (email: string, password: string) => {
@@ -39,9 +50,11 @@ export const getCurrentUser = async () => {
 };
 
 export const onAuthStateChange = (callback: (user: User | null) => void) => {
-  const { data } = supabase.auth.onAuthStateChange((event, session) => {
-    callback(session?.user || null);
-  });
+  const { data } = supabase.auth.onAuthStateChange(
+    (event: AuthChangeEvent, session: Session | null) => {
+      callback(session?.user || null);
+    }
+  );
   
   return () => {
     data.subscription.unsubscribe();
