@@ -91,39 +91,10 @@ export async function generateContent({
         - "Just spent hours researching this and honestly:"
     
     - For replies: Make them contextual, engaging, and conversational. Reference the original post when relevant. Keep them concise but meaningful.
-        
-        Example Reply Transitions by Tone:
-        INFORMATIVE: "Actually, the data shows that..."
-        VIRAL: "Wait until you hear this part..."
-        PROFESSIONAL: "To address your point specifically..."
-        CASUAL: "Oh! I know exactly what you mean..."
+        * Your reply MUST be a single, short, natural-sounding sentence. Make sure the reply is one sentence only. Be as concise as possible while still sounding conversational and human.
     
     - For Discord announcements: Use proper markdown formatting (bold, italics, code blocks). Include clear sections, bullet points, and emojis. Make important information stand out.
-        
-        Example Discord Formats by Tone:
-        INFORMATIVE:
-        **📚 Important Update**
-        Here's what you need to know:
-        • Point 1
-        • Point 2
-        
-        VIRAL:
-        **🔥 HUGE ANNOUNCEMENT**
-        You won't believe what's coming:
-        • Amazing feature
-        • Mind-blowing update
-        
-        PROFESSIONAL:
-        **📢 Official Announcement**
-        We are pleased to announce:
-        • Implementation details
-        • Next steps
-        
-        CASUAL:
-        **👋 Hey everyone!**
-        Quick update for you all:
-        • Cool stuff incoming
-        • Fun changes
+        * Your response MUST be a single plain text Discord announcement. NEVER use JSON, objects, or arrays. ONLY output plain text, using Discord markdown for formatting if needed.
 
     Tone Guidelines:
     - Informative: Focus on facts, data, and clear explanations. Use professional language while remaining accessible. Avoid marketing speak.

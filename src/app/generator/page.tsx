@@ -25,6 +25,24 @@ type KnowledgeFile = {
   size: number;
 };
 
+// Utility to safely render generated content as a string
+function getSafeContent(value: any): string {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value)) return value.map(getSafeContent).join('\n');
+  if (typeof value === 'object' && value !== null) {
+    // Try common string properties
+    for (const key of ['content', 'text', 'message', 'value', 'title', 'body']) {
+      if (typeof value[key] === 'string') return value[key];
+    }
+    // Fallback: join all string values in the object
+    const strings = Object.values(value).filter(v => typeof v === 'string');
+    if (strings.length) return strings.join('\n');
+    // Last resort: JSON
+    return JSON.stringify(value, null, 2);
+  }
+  return String(value);
+}
+
 export default function ContentGenerator() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedProject, setSelectedProject] = useState<string>('');
@@ -476,10 +494,10 @@ export default function ContentGenerator() {
                         return <p>{content}</p>;
                       }
                     }}>
-                      {generatedContent}
+                      {getSafeContent(generatedContent)}
                     </ReactMarkdown>
                   ) : (
-                    <div className="whitespace-pre-wrap">{generatedContent}</div>
+                    <div className="whitespace-pre-wrap">{getSafeContent(generatedContent)}</div>
                   )
                 ) : (
                   <div className="text-gray-500 dark:text-gray-400 flex flex-col items-center justify-center h-full text-center">
