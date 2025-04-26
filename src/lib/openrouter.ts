@@ -1,4 +1,16 @@
-import axios, { AxiosError } from 'axios';
+/// <reference types="axios" />
+
+import axios from 'axios';
+
+// TypeScript declaration for axios
+type AxiosError = Error & {
+  response?: {
+    status?: number;
+    statusText?: string;
+    data?: any;
+    headers?: any;
+  }
+};
 
 // Use a function to safely get environment variables in Next.js client components
 const getEnvVar = (name: string): string => {
