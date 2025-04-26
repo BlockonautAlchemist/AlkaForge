@@ -27,6 +27,12 @@ type File = {
   name: string;
   size: number;
   type: string;
+  lastModified: number;
+  webkitRelativePath: string;
+  arrayBuffer: () => Promise<ArrayBuffer>;
+  slice: (start?: number, end?: number, contentType?: string) => Blob;
+  text: () => Promise<string>;
+  stream: () => ReadableStream;
 };
 
 export default function Dashboard() {
@@ -199,7 +205,7 @@ export default function Dashboard() {
               // Upload file to Supabase Storage
               const { error: uploadError } = await supabase.storage
                 .from('knowledge_files')
-                .upload(filePath, file);
+                .upload(filePath, file as unknown as Blob);
                 
               if (uploadError) {
                 console.error("Error uploading file:", uploadError);
