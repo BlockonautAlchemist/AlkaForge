@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { FiArrowLeft, FiEdit2, FiSave, FiTrash2, FiUpload, FiFile, FiX } from 'react-icons/fi';
+import { FiArrowLeft, FiEdit2, FiSave, FiTrash2, FiUpload, FiFile, FiX } from '@/lib/react-icons-compat';
 import toast from 'react-hot-toast';
 
 type Project = {

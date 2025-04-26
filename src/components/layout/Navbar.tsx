@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { FiMenu, FiX, FiMoon, FiSun, FiLogOut } from 'react-icons/fi';
+import { FiMenu, FiX, FiMoon, FiSun, FiLogOut } from '@/lib/react-icons-compat';
 
 const Navbar: React.FC = () => {
   const { user, signOut } = useAuth();

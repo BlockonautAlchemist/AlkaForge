@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
-import { FiFileText, FiCpu, FiTwitter, FiMessageSquare } from 'react-icons/fi';
+import { FiFileText, FiCpu, FiTwitter, FiMessageSquare } from '@/lib/react-icons-compat';
 
 export default function Home() {
   return (
