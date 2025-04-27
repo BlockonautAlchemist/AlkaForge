@@ -301,7 +301,20 @@ export default function ContentGenerator() {
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(generatedContent);
+    if (contentType === 'thread' && generatedContent.includes('"part1"')) {
+      try {
+        // For threads, extract clean text from JSON
+        const parsed = JSON.parse(generatedContent.trim().replace(/^[^{]*/, '').replace(/[^}]*$/, ''));
+        const threadText = Object.values(parsed).join('\n\n');
+        navigator.clipboard.writeText(threadText);
+      } catch (e) {
+        // Fallback to raw content if parsing fails
+        navigator.clipboard.writeText(generatedContent);
+      }
+    } else {
+      // For other content types
+      navigator.clipboard.writeText(generatedContent);
+    }
     toast.success('Copied to clipboard!');
   };
 
@@ -491,28 +504,22 @@ export default function ContentGenerator() {
                     </div>
                   ) : contentType === 'thread' && generatedContent.includes('"part1"') ? (
                     <div className="whitespace-pre-wrap">
-                      <pre className="bg-gray-800 text-white p-4 rounded overflow-auto max-h-[400px]">
-                        {generatedContent.trim()}
-                      </pre>
-                      
-                      {/* Add parsed version for better readability */}
+                      {/* Hide the raw JSON and only display the parsed thread content */}
                       {(() => {
                         try {
                           const parsed = JSON.parse(generatedContent.trim().replace(/^[^{]*/, '').replace(/[^}]*$/, ''));
                           return (
-                            <div className="mt-4 p-4 border border-gray-200 dark:border-dark-300 rounded bg-white dark:bg-dark-200">
-                              <h3 className="font-medium mb-2 text-primary-600 dark:text-primary-400">Thread Preview:</h3>
-                              <div className="space-y-3">
-                                {Object.entries(parsed).map(([key, value]: [string, any]) => (
-                                  <div key={key} className="p-3 bg-gray-100 dark:bg-dark-300 rounded-md">
-                                    <p>{value}</p>
-                                  </div>
-                                ))}
-                              </div>
+                            <div className="space-y-3">
+                              {Object.entries(parsed).map(([key, value]: [string, any]) => (
+                                <div key={key} className="p-3 bg-gray-100 dark:bg-dark-300 rounded-md mb-3">
+                                  <p>{value}</p>
+                                </div>
+                              ))}
                             </div>
                           );
                         } catch (e) {
-                          return null;
+                          // If JSON parsing fails, show the raw content as fallback
+                          return <div className="whitespace-pre-wrap">{getSafeContent(generatedContent)}</div>;
                         }
                       })()}
                     </div>
