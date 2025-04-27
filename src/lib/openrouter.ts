@@ -124,11 +124,29 @@ export async function generateContent({
         const jsonContent = content.trim().replace(/^[^{]*/, '').replace(/[^}]*$/, '');
         console.log("Cleaned JSON:", jsonContent);
         
+        // Parse to validate it's proper JSON, but return the formatted JSON string
         const parsedContent = JSON.parse(jsonContent);
         
-        // For display purposes, return the original JSON string to be displayed in the UI
-        // This allows the UI to present the JSON format directly
-        return jsonContent;
+        // Ensure all parts exist and have the call to action in part5
+        if (!parsedContent.part5 || !parsedContent.part5.includes("follow") || !parsedContent.part5.includes("like")) {
+          console.warn("Thread missing proper CTA in part5:", parsedContent.part5);
+          
+          // If part5 exists but doesn't have a proper CTA, add one
+          if (parsedContent.part5) {
+            parsedContent.part5 = parsedContent.part5.trim() + " Found this valuable? Follow for more insights like this. Like and repost to share with others!";
+            
+            // Make sure it's not too long
+            if (parsedContent.part5.length > 280) {
+              parsedContent.part5 = parsedContent.part5.substring(0, 230) + " Follow for more! Like & RT to share!";
+            }
+            
+            // Return the updated JSON
+            return JSON.stringify(parsedContent, null, 2);
+          }
+        }
+        
+        // For display purposes, return properly formatted JSON
+        return JSON.stringify(parsedContent, null, 2);
       } catch (error) {
         // If JSON parsing fails, try to clean up the content
         console.error('Failed to parse thread JSON response:', error);
