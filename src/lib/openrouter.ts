@@ -160,60 +160,29 @@ export async function generateContent({
 }
 
 export async function generateXThreadHooks({ prompt, tone }: { prompt: string, tone: string }): Promise<string[]> {
-  const systemPrompt = `You are an expert Twitter copywriter. Generate 3 highly engaging Twitter thread hooks, each under 280 characters, that would make someone want to read a thread about the following content. Each hook should:
-- Be optimized for X (Twitter) best practices
-- Be unique and attention-grabbing
-- Be relevant to the content provided
-- Match the following tone: ${tone}
-- Not use hashtags or numbering
-- Be formatted as a plain list (no JSON, just 1. ..., 2. ..., 3. ...)
-
-CONTENT:
-${prompt}`;
-
-  const messages = [
-    { role: 'system', content: systemPrompt }
-  ];
-
-  const apiKey = OPENROUTER_API_KEY;
-  if (!apiKey) {
-    throw new Error("OpenRouter API key is missing. Please check your environment variables.");
-  }
-
-  const requestBody = {
-    model: "anthropic/claude-3.7-sonnet",
-    messages: messages,
-    max_tokens: 600,
-    temperature: 0.8,
-    top_p: 1,
-    stream: false
-  };
-
-  const response = await axios.post<OpenRouterResponse>(
-    'https://openrouter.ai/api/v1/chat/completions',
-    requestBody,
-    {
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': 'https://alkaforge.vercel.app',
-        'X-Title': 'AlkaForge',
-        'Content-Type': 'application/json'
-      }
+  try {
+    console.log("Starting thread hooks generation");
+    console.log("Tone:", tone);
+    
+    // Use the API endpoint that uses server-side API key
+    const response = await axios.post('/api/generate-hooks', {
+      prompt,
+      tone
+    });
+    
+    if (!response.data || !response.data.hooks) {
+      console.error("Invalid response format:", response.data);
+      throw new Error("Failed to generate hooks");
     }
-  );
-
-  if (!response.data || !response.data.choices || response.data.choices.length === 0) {
-    throw new Error("No hooks generated");
+    
+    return response.data.hooks;
+  } catch (error) {
+    const axiosError = error as AxiosError;
+    if (axiosError.response) {
+      console.error("API error:", axiosError.response.status, axiosError.response.statusText, axiosError.response.data);
+      throw new Error(`API error: ${axiosError.response.statusText}`);
+    }
+    console.error("Error generating hooks:", error);
+    throw new Error("Failed to generate hooks");
   }
-
-  // Parse hooks from the response
-  const hooksRaw = response.data.choices[0].message.content;
-  // Expecting format: 1. ...\n2. ...\n3. ...
-  const hooks = hooksRaw
-    .split(/\n+/)
-    .map((line: string) => line.replace(/^\d+\.\s*/, '').trim())
-    .filter((line: string) => line.length > 0)
-    .slice(0, 3);
-
-  return hooks;
 }
