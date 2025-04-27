@@ -301,20 +301,7 @@ export default function ContentGenerator() {
   };
 
   const copyToClipboard = () => {
-    if (contentType === 'thread' && generatedContent.includes('"part1"')) {
-      try {
-        // For threads, extract clean text from JSON
-        const parsed = JSON.parse(generatedContent.trim().replace(/^[^{]*/, '').replace(/[^}]*$/, ''));
-        const threadText = Object.values(parsed).join('\n\n');
-        navigator.clipboard.writeText(threadText);
-      } catch (e) {
-        // Fallback to raw content if parsing fails
-        navigator.clipboard.writeText(generatedContent);
-      }
-    } else {
-      // For other content types
-      navigator.clipboard.writeText(generatedContent);
-    }
+    navigator.clipboard.writeText(generatedContent);
     toast.success('Copied to clipboard!');
   };
 
@@ -502,26 +489,13 @@ export default function ContentGenerator() {
                     <div className="prose dark:prose-invert max-w-none">
                       <ReactMarkdown children={getSafeContent(generatedContent)} />
                     </div>
-                  ) : contentType === 'thread' && generatedContent.includes('"part1"') ? (
-                    <div className="whitespace-pre-wrap">
-                      {/* Hide the raw JSON and only display the parsed thread content */}
-                      {(() => {
-                        try {
-                          const parsed = JSON.parse(generatedContent.trim().replace(/^[^{]*/, '').replace(/[^}]*$/, ''));
-                          return (
-                            <div className="space-y-3">
-                              {Object.entries(parsed).map(([key, value]: [string, any]) => (
-                                <div key={key} className="p-3 bg-gray-100 dark:bg-dark-300 rounded-md mb-3">
-                                  <p>{value}</p>
-                                </div>
-                              ))}
-                            </div>
-                          );
-                        } catch (e) {
-                          // If JSON parsing fails, show the raw content as fallback
-                          return <div className="whitespace-pre-wrap">{getSafeContent(generatedContent)}</div>;
-                        }
-                      })()}
+                  ) : contentType === 'thread' ? (
+                    <div className="space-y-3">
+                      {generatedContent.split('\n\n').map((part: string, index: number) => (
+                        <div key={index} className="p-3 bg-gray-100 dark:bg-dark-300 rounded-md mb-3">
+                          <p>{part}</p>
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div className="whitespace-pre-wrap">{getSafeContent(generatedContent)}</div>

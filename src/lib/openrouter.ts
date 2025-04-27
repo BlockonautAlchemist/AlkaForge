@@ -124,7 +124,7 @@ export async function generateContent({
         const jsonContent = content.trim().replace(/^[^{]*/, '').replace(/[^}]*$/, '');
         console.log("Cleaned JSON:", jsonContent);
         
-        // Parse to validate it's proper JSON, but return the formatted JSON string
+        // Parse to validate it's proper JSON
         const parsedContent = JSON.parse(jsonContent);
         
         // Ensure all parts exist and have the call to action in part5
@@ -139,19 +139,31 @@ export async function generateContent({
             if (parsedContent.part5.length > 280) {
               parsedContent.part5 = parsedContent.part5.substring(0, 230) + " Follow for more! Like & RT to share!";
             }
-            
-            // Return the updated JSON
-            return JSON.stringify(parsedContent, null, 2);
           }
         }
         
-        // For display purposes, return properly formatted JSON
-        return JSON.stringify(parsedContent, null, 2);
+        // Convert to a human-readable thread format
+        // Each part on a new line, separated by double line breaks
+        const threadParts = [];
+        for (let i = 1; i <= 5; i++) {
+          const part = parsedContent[`part${i}`];
+          if (part) {
+            threadParts.push(part);
+          }
+        }
+        
+        // Join all parts with double line breaks to create a human-readable thread
+        content = threadParts.join('\n\n');
+        
       } catch (error) {
         // If JSON parsing fails, try to clean up the content
         console.error('Failed to parse thread JSON response:', error);
-        // Return the raw content as a fallback
-        return content;
+        // For non-JSON responses, just return the cleaned content
+        content = content
+          .replace(/^\s*{\s*"part\d+":\s*"|"\s*}\s*$/g, '') // Remove JSON wrapper
+          .replace(/"\s*,\s*"part\d+":\s*"/g, '\n\n') // Replace JSON separators with newlines
+          .replace(/\\"/g, '"') // Fix escaped quotes
+          .trim(); // Clean up whitespace
       }
     } else if (contentType === 'discord') {
       // Keep Discord markdown formatting intact
