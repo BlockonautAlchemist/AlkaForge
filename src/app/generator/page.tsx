@@ -489,6 +489,10 @@ export default function ContentGenerator() {
                     <div className="prose dark:prose-invert max-w-none">
                       <ReactMarkdown children={getSafeContent(generatedContent)} />
                     </div>
+                  ) : contentType === 'thread' && generatedContent.includes('"part1"') ? (
+                    <div className="whitespace-pre-wrap">
+                      <pre className="bg-gray-800 text-white p-4 rounded overflow-auto">{generatedContent}</pre>
+                    </div>
                   ) : (
                     <div className="whitespace-pre-wrap">{getSafeContent(generatedContent)}</div>
                   )

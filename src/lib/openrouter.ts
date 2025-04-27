@@ -117,27 +117,23 @@ export async function generateContent({
     } else if (contentType === 'thread') {
       try {
         // First try to parse as JSON
-        const parsedContent = JSON.parse(content);
-        // Combine the thread parts into a single string with proper formatting
-        content = [
-          parsedContent.part1 || "",
-          parsedContent.part2 || "",
-          parsedContent.part3 || "",
-          parsedContent.part4 || "",
-          parsedContent.part5 || ""
-        ]
-        .filter(part => part.length > 0) // Remove empty parts
-        .map(part => part.trim()) // Trim whitespace
-        .join('\n\n'); // Add double line breaks between parts
+        console.log("Raw thread content:", content);
+        
+        // Clean the content to ensure it's valid JSON
+        // Remove any potential text before the opening brace or after the closing brace
+        const jsonContent = content.trim().replace(/^[^{]*/, '').replace(/[^}]*$/, '');
+        console.log("Cleaned JSON:", jsonContent);
+        
+        const parsedContent = JSON.parse(jsonContent);
+        
+        // For display purposes, return the original JSON string to be displayed in the UI
+        // This allows the UI to present the JSON format directly
+        return jsonContent;
       } catch (error) {
         // If JSON parsing fails, try to clean up the content
         console.error('Failed to parse thread JSON response:', error);
-        // Remove any JSON formatting artifacts
-        content = content
-          .replace(/^\s*{\s*"part\d+":\s*"|"\s*}\s*$/g, '') // Remove JSON wrapper
-          .replace(/"\s*,\s*"part\d+":\s*"/g, '\n\n') // Replace JSON separators with newlines
-          .replace(/\\"/g, '"') // Fix escaped quotes
-          .trim(); // Clean up whitespace
+        // Return the raw content as a fallback
+        return content;
       }
     } else if (contentType === 'discord') {
       // Keep Discord markdown formatting intact

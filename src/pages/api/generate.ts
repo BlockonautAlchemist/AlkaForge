@@ -37,12 +37,20 @@ export default async function handler(
     
     Content Type Guidelines:
     - For X posts: Keep it under 280 characters, concise, and engaging.
-    - For X threads: Create a series of connected posts with smooth transitions.
+    - For X threads: Create a series of connected posts with smooth transitions. IMPORTANT: Each part must be under 280 characters.
     - For replies: Make them contextual, engaging, and conversational.
     - For Discord announcements: Use markdown formatting appropriately.
     
     Format Rules:
-    1. For X threads, format your response as a JSON object with "part1" through "part5" keys
+    1. For X threads, you MUST format your response as a valid, parseable JSON object with this exact structure:
+       {
+         "part1": "first part text here",
+         "part2": "second part text here",
+         "part3": "third part text here",
+         "part4": "fourth part text here",
+         "part5": "fifth part text here"
+       }
+       Do NOT add any text before or after the JSON. The response should be ONLY the JSON object.
     2. For other content types, provide direct text output
     3. Never use hashtags
     4. Keep language simple and clear`;
