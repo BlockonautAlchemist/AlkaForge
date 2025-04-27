@@ -37,9 +37,15 @@ export default async function handler(
     
     Content Type Guidelines:
     - For X posts: Keep it under 280 characters, concise, and engaging.
-    - For X threads: Create a series of connected posts with smooth transitions. IMPORTANT: Each part must be under 280 characters.
+    - For X threads: Create a series of connected posts with smooth transitions. IMPORTANT: Each part must be under 280 characters. The final part MUST include a strong call to action encouraging followers to engage by following for more content, liking, and reposting to share with their audience. Use proven X (Twitter) copywriting best practices for the CTA.
     - For replies: Make them contextual, engaging, and conversational.
     - For Discord announcements: Use markdown formatting appropriately.
+    
+    Examples of effective thread CTAs:
+    - "Found this valuable? Follow me for more insights on [topic]. Like and repost to share with others who need this!"
+    - "Want more content like this? Hit follow for daily tips on [topic]. Like if you found this useful!"
+    - "If this helped you, make sure to follow for more. Repost to help others in your network!"
+    - "Follow for more [topic] breakdowns like this one. Your like and repost help more people see this thread!"
     
     Format Rules:
     1. For X threads, you MUST format your response as a valid, parseable JSON object with this exact structure:
@@ -48,7 +54,7 @@ export default async function handler(
          "part2": "second part text here",
          "part3": "third part text here",
          "part4": "fourth part text here",
-         "part5": "fifth part text here"
+         "part5": "fifth part text here with a STRONG call to action for engagement"
        }
        Do NOT add any text before or after the JSON. The response should be ONLY the JSON object.
     2. For other content types, provide direct text output
