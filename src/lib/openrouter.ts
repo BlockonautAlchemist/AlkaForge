@@ -105,14 +105,13 @@ export async function generateContent({
         
         content = content.trim();
         
-        // If we still don't have any complete sentences that fit, take the first 280 chars
-        // and ensure we end at a word boundary
+        // If we still don't have any complete sentences that fit, add as many full words as possible without cutting any word off
         if (!content) {
-          const words = content.split(' ');
+          const words = (response.data.content || '').trim().split(/\s+/);
           content = '';
           currentLength = 0;
-          
           for (const word of words) {
+            // +1 for space if not the first word
             if (currentLength + word.length + (currentLength > 0 ? 1 : 0) <= 280) {
               content += (currentLength > 0 ? ' ' : '') + word;
               currentLength += word.length + (currentLength > 0 ? 1 : 0);
