@@ -91,27 +91,36 @@ export async function generateContent({
         // Find the last complete sentence that fits within the limit
         const sentences = content.match(/[^.!?]+[.!?]+/g) || [content];
         content = '';
+        let currentLength = 0;
+        
         for (const sentence of sentences) {
-          if ((content + sentence).length <= 280) {
-            content += sentence;
+          const trimmedSentence = sentence.trim();
+          if (currentLength + trimmedSentence.length + (currentLength > 0 ? 1 : 0) <= 280) {
+            content += (currentLength > 0 ? ' ' : '') + trimmedSentence;
+            currentLength += trimmedSentence.length + (currentLength > 0 ? 1 : 0);
           } else {
             break;
           }
         }
+        
         content = content.trim();
         
-        // If we still don't have any complete sentences that fit, take the first 277 chars
+        // If we still don't have any complete sentences that fit, take the first 280 chars
+        // and ensure we end at a word boundary
         if (!content) {
           const words = content.split(' ');
           content = '';
+          currentLength = 0;
+          
           for (const word of words) {
-            if ((content + ' ' + word).length <= 277) {
-              content += (content ? ' ' : '') + word;
+            if (currentLength + word.length + (currentLength > 0 ? 1 : 0) <= 280) {
+              content += (currentLength > 0 ? ' ' : '') + word;
+              currentLength += word.length + (currentLength > 0 ? 1 : 0);
             } else {
               break;
             }
           }
-          content = content.trim() + '...';
+          content = content.trim();
         }
       }
     } else if (contentType === 'thread') {
