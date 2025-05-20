@@ -100,6 +100,13 @@ export async function generateContent({
         }
       }
       
+      // Clean up the content
+      content = content
+        .replace(/^["']|["']$/g, '') // Remove surrounding quotes
+        .replace(/\\n/g, ' ') // Replace newlines with spaces
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
+      
       // Enforce 280 character limit for X posts
       if (content.length > 280) {
         // Find the last complete sentence that fits within the limit

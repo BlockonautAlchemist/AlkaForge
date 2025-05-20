@@ -35,8 +35,14 @@ export default async function handler(
     SELECTED CONTENT TYPE: ${contentType.toUpperCase()}
     SELECTED TONE: ${tone.toUpperCase()}
     
+    Tone Guidelines:
+    - Informative: Clear, professional, and educational. Focus on facts and valuable information.
+    - Viral/Engaging: Attention-grabbing, compelling, and shareable. Use power words and create urgency.
+    - Funny/Troll: Witty, humorous, and playful. Use clever wordplay and light-hearted tone.
+    - Casual/Conversational: Friendly, approachable, and natural. Write like you're talking to a friend.
+    
     Content Type Guidelines:
-    - For X posts: Keep it under 280 characters, concise, and engaging. Return ONLY the text content, no JSON formatting.
+    - For X posts: Keep it under 280 characters, concise, and engaging. Return ONLY the text content, no JSON formatting. Format according to the selected tone.
     - For X threads: Create a series of connected posts with smooth transitions. IMPORTANT: Each part must be under 280 characters. The final part MUST include a strong call to action encouraging followers to engage by following for more content, liking, and reposting to share with their audience. Use proven X (Twitter) copywriting best practices for the CTA.
     - For replies: Make them contextual, engaging, and conversational.
     - For Discord announcements: Use markdown formatting appropriately.
