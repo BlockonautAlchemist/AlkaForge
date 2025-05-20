@@ -17,18 +17,12 @@ importers:
       autoprefixer:
         specifier: ^10.4.18
         version: 10.4.21(postcss@8.5.3)
-      axios:
-        specifier: ^1.8.2
-        version: 1.8.2
       firebase:
         specifier: ^10.9.0
         version: 10.14.1
       formidable:
         specifier: ^3.5.2
         version: 3.5.2
-      next:
-        specifier: 14.1.4
-        version: 14.1.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       postcss:
         specifier: ^8.4.35
         version: 8.5.3
@@ -72,12 +66,18 @@ importers:
       '@types/react-icons':
         specifier: ^3.0.0
         version: 3.0.0(react@18.3.1)
+      axios:
+        specifier: ^1.8.2
+        version: 1.8.2
       eslint:
         specifier: ^8.57.0
         version: 8.57.1
       eslint-config-next:
         specifier: 14.1.4
         version: 14.1.4(eslint@8.57.1)(typescript@5.8.2)
+      next:
+        specifier: 14.1.4
+        version: 14.1.4(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       typescript:
         specifier: ^5.8.2
         version: 5.8.2

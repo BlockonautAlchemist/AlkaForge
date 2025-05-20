@@ -85,8 +85,22 @@ export async function generateContent({
     
     // Handle different content types
     if (contentType === 'post') {
-      // Enforce 280 character limit for X posts
+      // For single posts, ensure we're not getting JSON format
       content = content.trim();
+      
+      // If content is wrapped in JSON, extract just the text
+      if (content.startsWith('{') && content.includes('"part')) {
+        try {
+          const jsonContent = JSON.parse(content);
+          // If it's a single post, just use part1 if it exists
+          content = jsonContent.part1 || content;
+        } catch (e) {
+          // If JSON parsing fails, just use the content as is
+          console.warn('Failed to parse JSON content for post:', e);
+        }
+      }
+      
+      // Enforce 280 character limit for X posts
       if (content.length > 280) {
         // Find the last complete sentence that fits within the limit
         const sentences = content.match(/[^.!?]+[.!?]+/g) || [content];
