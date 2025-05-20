@@ -44,7 +44,7 @@ export default async function handler(
     Content Type Guidelines:
     - For X posts: Keep it under 280 characters, concise, and engaging. Return ONLY the text content, no JSON formatting. Format according to the selected tone.
     - For X threads: Create a series of connected posts with smooth transitions. IMPORTANT: Each part must be under 280 characters. The final part MUST include a strong call to action encouraging followers to engage by following for more content, liking, and reposting to share with their audience. Use proven X (Twitter) copywriting best practices for the CTA.
-    - For replies: Make them contextual, engaging, and conversational.
+    - For replies: Keep it extremely concise - one short, impactful sentence. Maximum 50 characters. Be direct and to the point.
     - For Discord announcements: Use markdown formatting appropriately.
     
     Examples of effective thread CTAs:

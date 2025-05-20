@@ -194,6 +194,40 @@ export async function generateContent({
           .replace(/\\"/g, '"') // Fix escaped quotes
           .trim(); // Clean up whitespace
       }
+    } else if (contentType === 'reply') {
+      // For replies, enforce extremely short length
+      content = content.trim();
+      
+      // Clean up the content
+      content = content
+        .replace(/^["']|["']$/g, '') // Remove surrounding quotes
+        .replace(/\\n/g, ' ') // Replace newlines with spaces
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
+      
+      // Enforce 50 character limit for replies
+      if (content.length > 50) {
+        // Find the first complete sentence that fits within the limit
+        const sentences = content.match(/[^.!?]+[.!?]+/g) || [content];
+        content = sentences[0].trim();
+        
+        // If still too long, truncate at the last word that fits
+        if (content.length > 50) {
+          const words = content.split(/\s+/);
+          content = '';
+          let currentLength = 0;
+          
+          for (const word of words) {
+            if (currentLength + word.length + (currentLength > 0 ? 1 : 0) <= 50) {
+              content += (currentLength > 0 ? ' ' : '') + word;
+              currentLength += word.length + (currentLength > 0 ? 1 : 0);
+            } else {
+              break;
+            }
+          }
+          content = content.trim();
+        }
+      }
     } else if (contentType === 'discord') {
       // Keep Discord markdown formatting intact
       content = content.trim();
