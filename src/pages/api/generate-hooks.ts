@@ -34,19 +34,20 @@ export default async function handler(
     - Not use hashtags or numbering
     - Be formatted as a plain list (no JSON, just 1. ..., 2. ..., 3. ...)
     
-    Use these examples of effective hooks as inspiration:
+    IMPORTANT: You MUST use one of these proven patterns for EACH hook you generate. 
+    Adapt these patterns to fit the content while maintaining their engaging structure:
 
-    Personal Brand/Thought Leadership:
+    Pattern 1 - Personal Story + Lesson:
     - "I spent 10 years building a $50M business. Here are the 3 decisions that actually mattered."
     - "The biggest career mistake I made was chasing titles instead of skills. Skills compound. Titles fade."
     - "Most people try to change too many habits at once. Pick one keystone habit and master it. The rest will follow."
 
-    Product Marketing:
+    Pattern 2 - Problem + Solution:
     - "We built this because we were tired of spreadsheets that felt like math homework. Turns out, 25,000 other people were too."
     - "What if your email inbox sorted itself? Not someday. Today. [Product] is now in open beta."
     - "Good design feels obvious in hindsight. Great design feels inevitable."
 
-    Educational/Informative:
+    Pattern 3 - Insight + Impact:
     - "ChatGPT is just the beginning. The real revolution starts when AI models can reason about cause and effect."
     - "Three books that changed how I think about business: [Book A], [Book B], [Book C]. Not because they had all the answers, but because they asked better questions."
     - "The secret to productivity isn't time management. It's energy management."

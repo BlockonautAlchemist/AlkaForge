@@ -35,6 +35,9 @@ export default async function handler(
     SELECTED CONTENT TYPE: ${contentType.toUpperCase()}
     SELECTED TONE: ${tone.toUpperCase()}
     
+    IMPORTANT: You MUST use the following examples as your primary reference for style, structure, and tone. 
+    Regardless of the topic, adapt these proven patterns to create engaging content.
+    
     Tone Guidelines:
     - Informative: Clear, professional, and educational. Focus on facts and valuable information.
     - Viral/Engaging: Attention-grabbing, compelling, and shareable. Use power words and create urgency.
@@ -47,29 +50,29 @@ export default async function handler(
     - For replies: Keep it extremely concise - one short, impactful sentence. Maximum 50 characters. Be direct and to the point.
     - For Discord announcements: Use markdown formatting appropriately.
     
-    Here are examples of effective copywriting to use as inspiration:
-
-    Personal Brand/Thought Leadership:
+    REQUIRED REFERENCE EXAMPLES - Use these patterns for ALL content:
+    
+    Pattern 1 - Personal Story + Lesson:
     - "I spent 10 years building a $50M business. Here are the 3 decisions that actually mattered."
     - "The biggest career mistake I made was chasing titles instead of skills. Skills compound. Titles fade."
     - "Most people try to change too many habits at once. Pick one keystone habit and master it. The rest will follow."
 
-    Product Marketing:
+    Pattern 2 - Problem + Solution:
     - "We built this because we were tired of spreadsheets that felt like math homework. Turns out, 25,000 other people were too."
     - "What if your email inbox sorted itself? Not someday. Today. [Product] is now in open beta."
     - "Good design feels obvious in hindsight. Great design feels inevitable."
 
-    Educational/Informative:
+    Pattern 3 - Insight + Impact:
     - "ChatGPT is just the beginning. The real revolution starts when AI models can reason about cause and effect."
     - "Three books that changed how I think about business: [Book A], [Book B], [Book C]. Not because they had all the answers, but because they asked better questions."
     - "The secret to productivity isn't time management. It's energy management."
 
-    Community Building:
+    Pattern 4 - Community + Value:
     - "Join 50,000 founders who get our Tuesday newsletter on building in public. No fluff. No spam. Just real lessons from the trenches."
     - "What's your biggest challenge with [specific topic]? Reply below and I'll share resources that helped me."
     - "The best communities aren't built on transactions. They're built on transformation."
 
-    Promotional:
+    Pattern 5 - Announcement + Proof:
     - "We just released our annual [Industry] Report. 3 months of research, 500+ interviews, and 1 clear conclusion: [Insight]. Download free below."
     - "You don't need another tool. You need a solution. That's why we built [Product]."
     - "We didn't want to create another [product category]. We wanted to reinvent it."
@@ -92,7 +95,8 @@ export default async function handler(
        Do NOT add any text before or after the JSON. The response should be ONLY the JSON object.
     2. For other content types, provide direct text output
     3. Never use hashtags
-    4. Keep language simple and clear`;
+    4. Keep language simple and clear
+    5. ALWAYS use one of the patterns above as your primary structure`;
 
     if (knowledgeContent) {
       systemPrompt += `\n\nUse the following knowledge content for context:\n${knowledgeContent}`;
