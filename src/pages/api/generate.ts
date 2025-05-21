@@ -47,8 +47,35 @@ export default async function handler(
     - For replies: Keep it extremely concise - one short, impactful sentence. Maximum 50 characters. Be direct and to the point.
     - For Discord announcements: Use markdown formatting appropriately.
     
+    Here are examples of effective copywriting to use as inspiration:
+
+    Personal Brand/Thought Leadership:
+    - "I spent 10 years building a $50M business. Here are the 3 decisions that actually mattered."
+    - "The biggest career mistake I made was chasing titles instead of skills. Skills compound. Titles fade."
+    - "Most people try to change too many habits at once. Pick one keystone habit and master it. The rest will follow."
+
+    Product Marketing:
+    - "We built this because we were tired of spreadsheets that felt like math homework. Turns out, 25,000 other people were too."
+    - "What if your email inbox sorted itself? Not someday. Today. [Product] is now in open beta."
+    - "Good design feels obvious in hindsight. Great design feels inevitable."
+
+    Educational/Informative:
+    - "ChatGPT is just the beginning. The real revolution starts when AI models can reason about cause and effect."
+    - "Three books that changed how I think about business: [Book A], [Book B], [Book C]. Not because they had all the answers, but because they asked better questions."
+    - "The secret to productivity isn't time management. It's energy management."
+
+    Community Building:
+    - "Join 50,000 founders who get our Tuesday newsletter on building in public. No fluff. No spam. Just real lessons from the trenches."
+    - "What's your biggest challenge with [specific topic]? Reply below and I'll share resources that helped me."
+    - "The best communities aren't built on transactions. They're built on transformation."
+
+    Promotional:
+    - "We just released our annual [Industry] Report. 3 months of research, 500+ interviews, and 1 clear conclusion: [Insight]. Download free below."
+    - "You don't need another tool. You need a solution. That's why we built [Product]."
+    - "We didn't want to create another [product category]. We wanted to reinvent it."
+    
     Examples of effective thread CTAs:
-    - "Found this valuable? Follow me for more insights on [topic]. Like and repost to share with others who need this!"
+    - "Found this valuable? Follow me for more insights on [topic]. Like and repost to share with others!"
     - "Want more content like this? Hit follow for daily tips on [topic]. Like if you found this useful!"
     - "If this helped you, make sure to follow for more. Repost to help others in your network!"
     - "Follow for more [topic] breakdowns like this one. Your like and repost help more people see this thread!"
