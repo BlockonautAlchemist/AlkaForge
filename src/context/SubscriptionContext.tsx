@@ -3,6 +3,7 @@ import React from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import axios from 'axios';
+import { supabase } from '@/lib/supabase';
 
 interface SubscriptionData {
   subscription_tier: 'FREE' | 'STANDARD' | 'PREMIUM';
@@ -40,6 +41,17 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   const [warning, setWarning] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Helper function to get auth headers for API calls
+  const getAuthHeaders = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.access_token) {
+      return {
+        'Authorization': `Bearer ${session.access_token}`
+      };
+    }
+    return {};
+  };
+
   const refreshSubscription = async () => {
     if (!user) {
       setSubscription(null);
@@ -52,7 +64,8 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
     try {
       setLoading(true);
-      const response = await axios.get('/api/subscription/status');
+      const headers = await getAuthHeaders();
+      const response = await axios.get('/api/subscription/status', { headers });
       
       setSubscription(response.data.subscription);
       setTierDetails(response.data.tier_details);
@@ -81,7 +94,8 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
   const createCheckoutSession = async (tier: 'STANDARD' | 'PREMIUM'): Promise<string> => {
     try {
-      const response = await axios.post('/api/subscription/create-checkout', { tier });
+      const headers = await getAuthHeaders();
+      const response = await axios.post('/api/subscription/create-checkout', { tier }, { headers });
       return response.data.url;
     } catch (error) {
       console.error('Error creating checkout session:', error);
@@ -91,7 +105,8 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
 
   const createCustomerPortalSession = async (): Promise<string> => {
     try {
-      const response = await axios.post('/api/subscription/customer-portal');
+      const headers = await getAuthHeaders();
+      const response = await axios.post('/api/subscription/customer-portal', {}, { headers });
       return response.data.url;
     } catch (error) {
       console.error('Error creating customer portal session:', error);
