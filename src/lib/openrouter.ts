@@ -67,6 +67,13 @@ export async function generateContent({
       formattedPrompt = `MAIN PROMPT (from user):\n${prompt}\n\n${customPrompt ? `Additional instructions: ${customPrompt}\n\n` : ''}${knowledgeContent ? 'You may use the following knowledge content as supporting context, but the MAIN PROMPT above is the primary focus.' : ''}`;
     }
     
+    // Get the auth token from Supabase
+    const { data: { session } } = await (await import('@/lib/supabase')).supabase.auth.getSession();
+    
+    if (!session?.access_token) {
+      throw new Error('Authentication required. Please log in to generate content.');
+    }
+
     // Use the existing API endpoint that uses server-side API key
     const response = await axios.post('/api/generate', {
       prompt: formattedPrompt,
@@ -74,6 +81,11 @@ export async function generateContent({
       tone,
       maxTokens,
       knowledgeContent
+    }, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json'
+      }
     });
     
     if (!response.data || !response.data.content) {
@@ -253,10 +265,22 @@ export async function generateXThreadHooks({ prompt, tone }: { prompt: string, t
     console.log("Starting thread hooks generation");
     console.log("Tone:", tone);
     
+    // Get the auth token from Supabase
+    const { data: { session } } = await (await import('@/lib/supabase')).supabase.auth.getSession();
+    
+    if (!session?.access_token) {
+      throw new Error('Authentication required. Please log in to generate content.');
+    }
+
     // Use the API endpoint that uses server-side API key
     const response = await axios.post('/api/generate-hooks', {
       prompt,
       tone
+    }, {
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json'
+      }
     });
     
     if (!response.data || !response.data.hooks) {
@@ -266,12 +290,7 @@ export async function generateXThreadHooks({ prompt, tone }: { prompt: string, t
     
     return response.data.hooks;
   } catch (error) {
-    const axiosError = error as AxiosError;
-    if (axiosError.response) {
-      console.error("API error:", axiosError.response.status, axiosError.response.statusText, axiosError.response.data);
-      throw new Error(`API error: ${axiosError.response.statusText}`);
-    }
     console.error("Error generating hooks:", error);
-    throw new Error("Failed to generate hooks");
+    throw new Error("Failed to generate hooks. Please try again.");
   }
 }
