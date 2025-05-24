@@ -6,6 +6,7 @@ import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
 import { useSubscription } from '@/context/SubscriptionContext';
 import UsageWarning from '@/components/subscription/UsageWarning';
+import UsageDisplay from '@/components/subscription/UsageDisplay';
 import { supabase } from '@/lib/supabase';
 import { generateContent, generateXThreadHooks } from '@/lib/openrouter';
 import { extractTextFromFiles } from '@/lib/fileUtils';
@@ -336,7 +337,10 @@ export default function ContentGenerator() {
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Usage Warning */}
+            {/* Subscription Usage Display */}
+            <UsageDisplay />
+            
+            {/* Usage Warning (appears when approaching limits) */}
             <UsageWarning />
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
