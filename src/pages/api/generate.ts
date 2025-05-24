@@ -1,9 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
+import { withSubscriptionCheck } from '@/lib/subscriptionMiddleware';
+import { incrementUserUsage } from '@/lib/subscription';
 
 type ResponseData = {
   content?: string;
   error?: string;
+  subscription_tier?: string;
+  monthly_usage?: number;
+  upgrade_required?: boolean;
 };
 
 type RequestData = {
@@ -14,9 +19,13 @@ type RequestData = {
   knowledgeContent?: string;
 };
 
-export default async function handler(
+// SUBSCRIPTION ENFORCEMENT: This handler is wrapped with subscription checking
+// Users must be logged in and within their usage limits to generate content
+async function generateHandler(
   req: NextApiRequest,
-  res: NextApiResponse<ResponseData>
+  res: NextApiResponse<ResponseData>,
+  userId: string,
+  subscription: any
 ) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -137,9 +146,25 @@ export default async function handler(
     );
 
     const generatedContent = response.data.choices[0].message.content;
-    return res.status(200).json({ content: generatedContent });
+    
+    // USAGE TRACKING: Increment user's monthly usage after successful generation
+    try {
+      await incrementUserUsage(userId);
+    } catch (usageError) {
+      console.error('Error incrementing usage:', usageError);
+      // Don't fail the request if usage tracking fails, but log it
+    }
+    
+    return res.status(200).json({ 
+      content: generatedContent,
+      subscription_tier: subscription.subscription_tier,
+      monthly_usage: subscription.monthly_usage + 1 // Show updated usage
+    });
   } catch (error) {
     console.error('Error generating content:', error);
     return res.status(500).json({ error: 'Failed to generate content' });
   }
-} 
+}
+
+// Export the handler wrapped with subscription checking
+export default withSubscriptionCheck(generateHandler); 

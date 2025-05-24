@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
+import { useSubscription } from '@/context/SubscriptionContext';
+import UsageWarning from '@/components/subscription/UsageWarning';
 import { supabase } from '@/lib/supabase';
 import { generateContent, generateXThreadHooks } from '@/lib/openrouter';
 import { extractTextFromFiles } from '@/lib/fileUtils';
@@ -70,6 +72,7 @@ export default function ContentGenerator() {
 
   const router = useRouter();
   const { user } = useAuth();
+  const { subscription } = useSubscription();
 
   useEffect(() => {
     if (!user) {
@@ -332,179 +335,184 @@ export default function ContentGenerator() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Input Section */}
-            <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Generate Content</h2>
-              
-              <div className="space-y-6">
-                <div>
-                  <label htmlFor="project" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Topic
-                  </label>
-                  <select
-                    id="project"
-                    value={selectedProject}
-                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedProject(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  >
-                    {projects.map((project: Project) => (
-                      <option key={project.id} value={project.id}>
-                        {project.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-6">
+            {/* Usage Warning */}
+            <UsageWarning />
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Input Section */}
+              <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6">
+                <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">Generate Content</h2>
+                
+                <div className="space-y-6">
                   <div>
-                    <label htmlFor="contentType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Content Type
+                    <label htmlFor="project" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Topic
                     </label>
                     <select
-                      id="contentType"
-                      value={contentType}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setContentType(e.target.value as ContentType)}
+                      id="project"
+                      value={selectedProject}
+                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setSelectedProject(e.target.value)}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                     >
-                      <option value="post">X Post</option>
-                      <option value="thread">X Thread</option>
-                      <option value="reply">X Reply</option>
-                      <option value="discord">Discord Announcement</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="tone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Tone
-                    </label>
-                    <select
-                      id="tone"
-                      value={tone}
-                      onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTone(e.target.value as ToneType)}
-                      className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    >
-                      <option value="informative">Informative</option>
-                      <option value="viral">Viral/Engaging</option>
-                      <option value="funny">Funny/Troll</option>
-                      <option value="casual">Casual/Conversational</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label htmlFor="customPrompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Custom Instructions (Optional)
-                  </label>
-                  <textarea
-                    id="customPrompt"
-                    value={customPrompt}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCustomPrompt(e.target.value)}
-                    rows={4}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Add any specific instructions or requirements for the content generation..."
-                  />
-                </div>
-
-                <div>
-                  <label htmlFor="prompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Your Content
-                  </label>
-                  <textarea
-                    id="prompt"
-                    value={prompt}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
-                    rows={8}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                    placeholder="Enter your content ideas or raw text here..."
-                  />
-                </div>
-
-                <div>
-                  <button
-                    onClick={handleGenerate}
-                    disabled={loading || !prompt.trim() || !selectedProject}
-                    className={`w-full flex justify-center items-center px-4 py-2 rounded-md text-white font-medium ${
-                      loading || !prompt.trim() || !selectedProject
-                        ? 'bg-primary-400 cursor-not-allowed'
-                        : 'bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
-                    }`}
-                  >
-                    {loading ? 'Generating...' : 'Generate Content'}
-                  </button>
-                </div>
-                {showHookSelection && threadHooks.length > 0 && (
-                  <div className="mt-6 p-4 border border-primary-300 rounded-md bg-primary-50 dark:bg-dark-200">
-                    <h3 className="text-lg font-semibold mb-2 text-primary-700 dark:text-primary-300">Choose a hook to start your thread:</h3>
-                    <ul className="space-y-2">
-                      {threadHooks.map((hook: string, idx: number) => (
-                        <li key={idx}>
-                          <button
-                            className={`w-full text-left px-4 py-2 rounded-md border border-primary-300 bg-white dark:bg-dark-100 hover:bg-primary-100 dark:hover:bg-dark-300 transition ${selectedHook === hook ? 'ring-2 ring-primary-500' : ''}`}
-                            onClick={() => handleGenerateThreadWithHook(hook)}
-                            disabled={loading || hookLoading}
-                          >
-                            {hook}
-                          </button>
-                        </li>
+                      {projects.map((project: Project) => (
+                        <option key={project.id} value={project.id}>
+                          {project.name}
+                        </option>
                       ))}
-                    </ul>
-                    {hookLoading && (
-                      <div className="flex justify-center items-center mt-4">
-                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
-                      </div>
-                    )}
+                    </select>
                   </div>
-                )}
-              </div>
-            </div>
 
-            {/* Output Section */}
-            <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
-                  {getContentTypeIcon()}
-                  {contentType === 'post' && 'X Post'}
-                  {contentType === 'thread' && 'X Thread'}
-                  {contentType === 'reply' && 'X Reply'}
-                  {contentType === 'discord' && 'Discord Announcement'}
-                </h2>
-                {generatedContent && (
-                  <button
-                    onClick={copyToClipboard}
-                    className="flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
-                  >
-                    <span className="mr-1">Copy</span>
-                  </button>
-                )}
-              </div>
-
-              <div className={`border border-gray-200 dark:border-dark-300 rounded-md p-4 min-h-[300px] max-h-[500px] overflow-y-auto ${contentType === 'discord' ? 'prose dark:prose-invert max-w-none' : ''}`}>
-                {loading && (!showHookSelection || contentType !== 'thread') ? (
-                  <div className="flex justify-center items-center h-full">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
-                  </div>
-                ) : generatedContent ? (
-                  contentType === 'discord' ? (
-                    <div className="prose dark:prose-invert max-w-none">
-                      <ReactMarkdown children={getSafeContent(generatedContent)} />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="contentType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Content Type
+                      </label>
+                      <select
+                        id="contentType"
+                        value={contentType}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setContentType(e.target.value as ContentType)}
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      >
+                        <option value="post">X Post</option>
+                        <option value="thread">X Thread</option>
+                        <option value="reply">X Reply</option>
+                        <option value="discord">Discord Announcement</option>
+                      </select>
                     </div>
-                  ) : contentType === 'thread' ? (
-                    <div className="space-y-3">
-                      {generatedContent.split('\n\n').map((part: string, index: number) => (
-                        <div key={index} className="p-3 bg-gray-100 dark:bg-dark-300 rounded-md mb-3">
-                          <p>{part}</p>
+
+                    <div>
+                      <label htmlFor="tone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Tone
+                      </label>
+                      <select
+                        id="tone"
+                        value={tone}
+                        onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setTone(e.target.value as ToneType)}
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      >
+                        <option value="informative">Informative</option>
+                        <option value="viral">Viral/Engaging</option>
+                        <option value="funny">Funny/Troll</option>
+                        <option value="casual">Casual/Conversational</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label htmlFor="customPrompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Custom Instructions (Optional)
+                    </label>
+                    <textarea
+                      id="customPrompt"
+                      value={customPrompt}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCustomPrompt(e.target.value)}
+                      rows={4}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Add any specific instructions or requirements for the content generation..."
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="prompt" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Your Content
+                    </label>
+                    <textarea
+                      id="prompt"
+                      value={prompt}
+                      onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
+                      rows={8}
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                      placeholder="Enter your content ideas or raw text here..."
+                    />
+                  </div>
+
+                  <div>
+                    <button
+                      onClick={handleGenerate}
+                      disabled={loading || !prompt.trim() || !selectedProject}
+                      className={`w-full flex justify-center items-center px-4 py-2 rounded-md text-white font-medium ${
+                        loading || !prompt.trim() || !selectedProject
+                          ? 'bg-primary-400 cursor-not-allowed'
+                          : 'bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2'
+                      }`}
+                    >
+                      {loading ? 'Generating...' : 'Generate Content'}
+                    </button>
+                  </div>
+                  {showHookSelection && threadHooks.length > 0 && (
+                    <div className="mt-6 p-4 border border-primary-300 rounded-md bg-primary-50 dark:bg-dark-200">
+                      <h3 className="text-lg font-semibold mb-2 text-primary-700 dark:text-primary-300">Choose a hook to start your thread:</h3>
+                      <ul className="space-y-2">
+                        {threadHooks.map((hook: string, idx: number) => (
+                          <li key={idx}>
+                            <button
+                              className={`w-full text-left px-4 py-2 rounded-md border border-primary-300 bg-white dark:bg-dark-100 hover:bg-primary-100 dark:hover:bg-dark-300 transition ${selectedHook === hook ? 'ring-2 ring-primary-500' : ''}`}
+                              onClick={() => handleGenerateThreadWithHook(hook)}
+                              disabled={loading || hookLoading}
+                            >
+                              {hook}
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                      {hookLoading && (
+                        <div className="flex justify-center items-center mt-4">
+                          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary-600"></div>
                         </div>
-                      ))}
+                      )}
                     </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Output Section */}
+              <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+                    {getContentTypeIcon()}
+                    {contentType === 'post' && 'X Post'}
+                    {contentType === 'thread' && 'X Thread'}
+                    {contentType === 'reply' && 'X Reply'}
+                    {contentType === 'discord' && 'Discord Announcement'}
+                  </h2>
+                  {generatedContent && (
+                    <button
+                      onClick={copyToClipboard}
+                      className="flex items-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+                    >
+                      <span className="mr-1">Copy</span>
+                    </button>
+                  )}
+                </div>
+
+                <div className={`border border-gray-200 dark:border-dark-300 rounded-md p-4 min-h-[300px] max-h-[500px] overflow-y-auto ${contentType === 'discord' ? 'prose dark:prose-invert max-w-none' : ''}`}>
+                  {loading && (!showHookSelection || contentType !== 'thread') ? (
+                    <div className="flex justify-center items-center h-full">
+                      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+                    </div>
+                  ) : generatedContent ? (
+                    contentType === 'discord' ? (
+                      <div className="prose dark:prose-invert max-w-none">
+                        <ReactMarkdown children={getSafeContent(generatedContent)} />
+                      </div>
+                    ) : contentType === 'thread' ? (
+                      <div className="space-y-3">
+                        {generatedContent.split('\n\n').map((part: string, index: number) => (
+                          <div key={index} className="p-3 bg-gray-100 dark:bg-dark-300 rounded-md mb-3">
+                            <p>{part}</p>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="whitespace-pre-wrap">{getSafeContent(generatedContent)}</div>
+                    )
                   ) : (
-                    <div className="whitespace-pre-wrap">{getSafeContent(generatedContent)}</div>
-                  )
-                ) : (
-                  <div className="text-gray-500 dark:text-gray-400 flex flex-col items-center justify-center h-full text-center">
-                    <p>Generated content will appear here</p>
-                  </div>
-                )}
+                    <div className="text-gray-500 dark:text-gray-400 flex flex-col items-center justify-center h-full text-center">
+                      <p>Generated content will appear here</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -23,4 +23,9 @@ export const FiMessageSquare = (props: any) => <span className={props.className}
 export const FiPlus = (props: any) => <span className={props.className}>➕</span>;
 export const FiFolder = (props: any) => <span className={props.className}>📁</span>;
 export const FiEdit = (props: any) => <span className={props.className}>✏️</span>;
-export const FiTrash = (props: any) => <span className={props.className}>🗑️</span>; 
+export const FiTrash = (props: any) => <span className={props.className}>🗑️</span>;
+export const FiCheck = (props: any) => <span className={props.className}>✅</span>;
+export const FiStar = (props: any) => <span className={props.className}>⭐</span>;
+export const FiZap = (props: any) => <span className={props.className}>⚡</span>;
+export const FiShield = (props: any) => <span className={props.className}>🛡️</span>;
+export const FiHeadphones = (props: any) => <span className={props.className}>🎧</span>; 

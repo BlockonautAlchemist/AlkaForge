@@ -1,0 +1,130 @@
+import React from 'react';
+// @ts-ignore - Ignoring type issues with React imports
+import { createContext, useContext, useEffect, useState } from 'react';
+import { useAuth } from './AuthContext';
+import axios from 'axios';
+
+interface SubscriptionData {
+  subscription_tier: 'FREE' | 'STANDARD' | 'PREMIUM';
+  monthly_usage: number;
+  usage_reset_date: string;
+  stripe_customer_id?: string;
+  stripe_subscription_id?: string;
+}
+
+interface TierDetails {
+  name: string;
+  price: number;
+  monthlyRequests: number;
+  features: string[];
+}
+
+interface SubscriptionContextType {
+  subscription: SubscriptionData | null;
+  tierDetails: TierDetails | null;
+  remainingRequests: number;
+  warning: string | null;
+  loading: boolean;
+  refreshSubscription: () => Promise<void>;
+  createCheckoutSession: (tier: 'STANDARD' | 'PREMIUM') => Promise<string>;
+  createCustomerPortalSession: () => Promise<string>;
+}
+
+const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
+
+export function SubscriptionProvider({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const [subscription, setSubscription] = useState<SubscriptionData | null>(null);
+  const [tierDetails, setTierDetails] = useState<TierDetails | null>(null);
+  const [remainingRequests, setRemainingRequests] = useState(0);
+  const [warning, setWarning] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const refreshSubscription = async () => {
+    if (!user) {
+      setSubscription(null);
+      setTierDetails(null);
+      setRemainingRequests(0);
+      setWarning(null);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await axios.get('/api/subscription/status');
+      
+      setSubscription(response.data.subscription);
+      setTierDetails(response.data.tier_details);
+      setRemainingRequests(response.data.remaining_requests || 0);
+      setWarning(response.data.warning || null);
+    } catch (error) {
+      console.error('Error fetching subscription:', error);
+      // Set default free tier on error
+      setSubscription({
+        subscription_tier: 'FREE',
+        monthly_usage: 0,
+        usage_reset_date: new Date().toISOString(),
+      });
+      setTierDetails({
+        name: 'Free Plan',
+        price: 0,
+        monthlyRequests: 10,
+        features: ['Up to 10 requests per month', 'Basic content generation', 'Email support'],
+      });
+      setRemainingRequests(10);
+      setWarning(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createCheckoutSession = async (tier: 'STANDARD' | 'PREMIUM'): Promise<string> => {
+    try {
+      const response = await axios.post('/api/subscription/create-checkout', { tier });
+      return response.data.url;
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+      throw new Error('Failed to create checkout session');
+    }
+  };
+
+  const createCustomerPortalSession = async (): Promise<string> => {
+    try {
+      const response = await axios.post('/api/subscription/customer-portal');
+      return response.data.url;
+    } catch (error) {
+      console.error('Error creating customer portal session:', error);
+      throw new Error('Failed to create customer portal session');
+    }
+  };
+
+  useEffect(() => {
+    refreshSubscription();
+  }, [user]);
+
+  return (
+    <SubscriptionContext.Provider
+      value={{
+        subscription,
+        tierDetails,
+        remainingRequests,
+        warning,
+        loading,
+        refreshSubscription,
+        createCheckoutSession,
+        createCustomerPortalSession,
+      }}
+    >
+      {children}
+    </SubscriptionContext.Provider>
+  );
+}
+
+export function useSubscription() {
+  const context = useContext(SubscriptionContext);
+  if (context === undefined) {
+    throw new Error('useSubscription must be used within a SubscriptionProvider');
+  }
+  return context;
+} 

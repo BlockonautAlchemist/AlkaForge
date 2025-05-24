@@ -5,7 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { FiMenu, FiX, FiMoon, FiSun, FiLogOut } from '@/lib/react-icons-compat';
 
 const Navbar: React.FC = () => {
-  const { user, signOut } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -58,7 +58,18 @@ const Navbar: React.FC = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-4">
-            {user ? (
+            <Link 
+              href="/pricing" 
+              className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
+            >
+              Pricing
+            </Link>
+            {loading ? (
+              // Show loading state to prevent hydration mismatch
+              <div className="px-3 py-2">
+                <div className="w-16 h-6 bg-gray-200 dark:bg-dark-300 animate-pulse rounded"></div>
+              </div>
+            ) : user ? (
               <>
                 <Link 
                   href="/dashboard" 
@@ -126,43 +137,56 @@ const Navbar: React.FC = () => {
       {/* Mobile menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-white dark:bg-dark-100 pt-2 pb-4 px-4">
-          {user ? (
-            <div className="space-y-1">
-              <Link 
-                href="/dashboard" 
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
-              >
-                Dashboard
-              </Link>
-              <Link 
-                href="/generator" 
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
-              >
-                Content Generator
-              </Link>
-              <button 
-                onClick={handleSignOut}
-                className="flex items-center w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
-              >
-                <FiLogOut className="mr-1" /> Sign Out
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              <Link 
-                href="/login" 
-                className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
-              >
-                Login
-              </Link>
-              <Link 
-                href="/signup" 
-                className="block px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700"
-              >
-                Sign Up
-              </Link>
-            </div>
-          )}
+          <div className="space-y-1">
+            <Link 
+              href="/pricing" 
+              className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
+            >
+              Pricing
+            </Link>
+            {loading ? (
+              // Show loading state to prevent hydration mismatch
+              <div className="px-3 py-2">
+                <div className="w-20 h-6 bg-gray-200 dark:bg-dark-300 animate-pulse rounded"></div>
+              </div>
+            ) : user ? (
+              <>
+                <Link 
+                  href="/dashboard" 
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
+                >
+                  Dashboard
+                </Link>
+                <Link 
+                  href="/generator" 
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
+                >
+                  Content Generator
+                </Link>
+                <button 
+                  onClick={handleSignOut}
+                  className="flex items-center w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
+                >
+                  <FiLogOut className="mr-1" /> Sign Out
+                </button>
+              </>
+            ) : (
+              <>
+                <Link 
+                  href="/login" 
+                  className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-dark-300"
+                >
+                  Login
+                </Link>
+                <Link 
+                  href="/signup" 
+                  className="block px-3 py-2 rounded-md text-base font-medium bg-primary-600 text-white hover:bg-primary-700"
+                >
+                  Sign Up
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       )}
     </nav>
