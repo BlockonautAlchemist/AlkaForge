@@ -1,7 +1,19 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { supabase } from './supabase';
+import { createClient } from '@supabase/supabase-js';
 import { canMakeRequest, shouldWarnAboutLimits, SUBSCRIPTION_TIERS } from './stripe';
 import { getUserSubscription, checkAndResetUserUsage, logPremiumUsageExceeded } from './subscription';
+
+// Create server-side Supabase client with service role key for auth validation
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false
+    }
+  }
+);
 
 // SUBSCRIPTION MIDDLEWARE: This middleware enforces request limits based on user's subscription tier
 // Add this to any API route that performs content generation
@@ -90,10 +102,11 @@ export async function getUserIdFromRequest(req: NextApiRequest): Promise<string 
 
     const token = authHeader.substring(7);
     
-    // Verify the token with Supabase
-    const { data: { user }, error } = await supabase.auth.getUser(token);
+    // Verify the token with Supabase using service role key
+    const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
     
     if (error || !user) {
+      console.error('Auth validation error:', error);
       return null;
     }
 
