@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
-import { FiMail, FiLock, FiUser, FiAlertCircle } from '@/lib/react-icons-compat';
+import { FiMail, FiLock, FiUser, FiAlertCircle, FiCheck } from '@/lib/react-icons-compat';
 import toast from 'react-hot-toast';
 
 export default function Signup() {
@@ -14,6 +14,7 @@ export default function Signup() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
 
   const router = useRouter();
   const { signUp } = useAuth();
@@ -36,13 +37,18 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const { session } = await signUp(email, password, fullName);
+      const { user, session } = await signUp(email, password, fullName);
       
       if (session) {
+        // User is immediately logged in (email confirmation disabled)
         toast.success('Account created successfully!');
         router.push('/dashboard');
+      } else if (user) {
+        // User created but needs to confirm email
+        setEmailSent(true);
+        toast.success('Please check your email to confirm your account!');
       } else {
-        throw new Error('Failed to create account. No session created.');
+        throw new Error('Failed to create account. Please try again.');
       }
     } catch (err: any) {
       console.error('Signup error:', err);
@@ -52,6 +58,52 @@ export default function Signup() {
       setLoading(false);
     }
   };
+
+  // Show email confirmation message
+  if (emailSent) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center py-12">
+          <div className="bg-white dark:bg-dark-100 shadow-md rounded-lg p-8 max-w-md w-full text-center">
+            <div className="mb-6">
+              <FiCheck className="mx-auto text-6xl text-green-500 mb-4" />
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                Check your email
+              </h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                We've sent a confirmation email to <strong>{email}</strong>
+              </p>
+            </div>
+
+            <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 p-4 rounded-md mb-6">
+              <p className="text-sm">
+                Please click the confirmation link in your email to activate your account. 
+                Check your spam folder if you don't see it in your inbox.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <button
+                onClick={() => setEmailSent(false)}
+                className="w-full py-2 px-4 rounded-md border border-gray-300 dark:border-dark-300 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-200 transition-colors"
+              >
+                Try again with different email
+              </button>
+              
+              <div className="text-center">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Already confirmed your email?{' '}
+                  <a href="/login" className="font-medium text-primary-600 dark:text-primary-400 hover:text-primary-500">
+                    Log in
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
