@@ -1,4 +1,39 @@
-import { supabase } from './supabase';
+// Use the public supabase client on the client-side, but when this code runs
+// in a server context (e.g. inside Next.js API routes) we should leverage the
+// service-role key so that our database operations have the required
+// privileges and are not blocked by RLS policies.  Importing the public client
+// here would embed the service role key into the client bundle, so we create a
+// new admin client *only* on the server.
+
+// @ts-ignore - Path alias resolution handled by TS config
+import { supabase as supabasePublic } from './supabase';
+// @ts-ignore - Ignoring missing type declarations for @supabase/supabase-js
+import { createClient } from '@supabase/supabase-js';
+
+// Determine which supabase client to use.  If we are executing on the server
+// (window is undefined) *and* a service-role key is available, create an admin
+// client.  Otherwise fall back to the public client.
+// @ts-ignore - `window` is only defined in browser context
+const isServer = typeof window === 'undefined';
+
+// @ts-ignore - process.env provided by Node.js during build/runtime
+export const supabase = isServer && process.env.SUPABASE_SERVICE_ROLE_KEY
+  ? createClient(
+      // @ts-ignore - Server-side env vars
+      process.env.NEXT_PUBLIC_SUPABASE_URL || '',
+      // @ts-ignore - Server-side env vars
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      }
+    )
+  : supabasePublic;
+
+// ---------------------------------------------------------------------------
+
 import { SubscriptionTier } from './stripe';
 
 // User subscription data interface
