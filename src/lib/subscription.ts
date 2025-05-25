@@ -54,7 +54,7 @@ export interface UserSubscription {
 // Called after each successful generation request
 export async function incrementUserUsage(userId: string): Promise<void> {
   const { error } = await supabase.rpc('increment_user_usage', {
-    user_id: userId
+    target_user_id: userId
   });
 
   if (error) {
