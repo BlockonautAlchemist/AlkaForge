@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { withSubscriptionCheck } from '@/lib/subscriptionMiddleware';
-import { incrementUserUsage } from '@/lib/subscription';
+import { incrementUserUsage, getUserSubscription } from '@/lib/subscription';
 
 type ResponseData = {
   content?: string;
@@ -154,11 +154,22 @@ async function generateHandler(
       console.error('Error incrementing usage:', usageError);
       // Don't fail the request if usage tracking fails, but log it
     }
+
+    // Fetch the updated subscription data to return fresh usage numbers
+    let updatedSubscription = subscription;
+    try {
+      const sub = await getUserSubscription(userId);
+      if (sub) {
+        updatedSubscription = sub;
+      }
+    } catch (subError) {
+      console.error('Error fetching updated subscription:', subError);
+    }
     
     return res.status(200).json({ 
       content: generatedContent,
-      subscription_tier: subscription.subscription_tier,
-      monthly_usage: subscription.monthly_usage // Only return the real value
+      subscription_tier: updatedSubscription.subscription_tier,
+      monthly_usage: updatedSubscription.monthly_usage
     });
   } catch (error) {
     console.error('Error generating content:', error);
