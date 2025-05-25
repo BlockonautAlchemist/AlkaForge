@@ -73,7 +73,7 @@ export default function ContentGenerator() {
 
   const router = useRouter();
   const { user } = useAuth();
-  const { subscription } = useSubscription();
+  const { subscription, refreshSubscription } = useSubscription();
 
   useEffect(() => {
     if (!user) {
@@ -229,6 +229,9 @@ export default function ContentGenerator() {
         console.log("Content saved to history successfully");
       }
 
+      // Refresh subscription usage after generation
+      await refreshSubscription();
+
       toast.success('Content generated successfully!');
       setSelectedHook(null);
       setThreadHooks([]);
@@ -296,6 +299,8 @@ export default function ContentGenerator() {
         content_type: contentType,
         tone: tone
       });
+      // Refresh subscription usage after generation
+      await refreshSubscription();
       toast.success('Content generated successfully!');
     } catch (error) {
       toast.error('Failed to generate thread.');

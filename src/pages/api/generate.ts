@@ -158,7 +158,7 @@ async function generateHandler(
     return res.status(200).json({ 
       content: generatedContent,
       subscription_tier: subscription.subscription_tier,
-      monthly_usage: subscription.monthly_usage + 1 // Show updated usage
+      monthly_usage: subscription.monthly_usage // Only return the real value
     });
   } catch (error) {
     console.error('Error generating content:', error);
