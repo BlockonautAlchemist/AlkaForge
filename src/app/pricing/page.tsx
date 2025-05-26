@@ -32,6 +32,21 @@ export default function PricingPage() {
     }
   };
 
+  const getCurrentPlanStatus = (planTier: string | null) => {
+    if (!user) return { isCurrent: false, buttonText: 'Get Started Free', buttonLink: '/signup' };
+    
+    const userTier = subscription?.subscription_tier || 'FREE';
+    
+    if (planTier === null && userTier === 'FREE') {
+      return { isCurrent: true, buttonText: 'Current Plan', buttonLink: null };
+    }
+    if (planTier === userTier) {
+      return { isCurrent: true, buttonText: 'Current Plan', buttonLink: null };
+    }
+    
+    return { isCurrent: false, buttonText: planTier ? `Choose ${planTier.charAt(0) + planTier.slice(1).toLowerCase()}` : 'Get Started Free', buttonLink: planTier ? null : '/signup' };
+  };
+
   const plans = [
     {
       name: 'Free',
@@ -130,16 +145,28 @@ export default function PricingPage() {
       <section className="py-16 bg-white dark:bg-dark-100">
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-            {plans.map((plan, index) => (
+            {plans.map((plan, index) => {
+              const planStatus = getCurrentPlanStatus(plan.tier);
+              return (
               <div
                 key={plan.name}
                 className={`relative rounded-2xl p-8 ${
-                  plan.popular
+                  planStatus.isCurrent
+                    ? 'border-2 border-green-500 shadow-2xl bg-green-50 dark:bg-green-900/20'
+                    : plan.popular
                     ? 'border-2 border-primary-600 shadow-2xl scale-105'
                     : 'border border-gray-200 dark:border-dark-300 shadow-lg'
                 } bg-white dark:bg-dark-200`}
               >
-                {plan.popular && (
+                {planStatus.isCurrent && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-green-500 text-white px-6 py-2 rounded-full text-sm font-medium flex items-center">
+                      <FiCheck className="mr-1" />
+                      Current Plan
+                    </span>
+                  </div>
+                )}
+                {!planStatus.isCurrent && plan.popular && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <span className="bg-gradient-to-r from-primary-600 to-primary-700 text-white px-6 py-2 rounded-full text-sm font-medium flex items-center">
                       <FiStar className="mr-1" />
@@ -190,16 +217,23 @@ export default function PricingPage() {
                 )}
 
                 <div className="mt-auto">
-                  {plan.buttonLink ? (
+                  {planStatus.isCurrent ? (
+                    <button
+                      disabled
+                      className="w-full px-6 py-3 font-medium rounded-lg bg-green-500 text-white cursor-not-allowed opacity-75"
+                    >
+                      Current Plan
+                    </button>
+                  ) : planStatus.buttonLink ? (
                     <Link
-                      href={plan.buttonLink}
+                      href={planStatus.buttonLink}
                       className={`w-full inline-block text-center px-6 py-3 font-medium rounded-lg transition duration-300 ${
                         plan.popular
                           ? 'bg-primary-600 hover:bg-primary-700 text-white'
                           : 'border border-primary-600 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900'
                       }`}
                     >
-                      {plan.buttonText}
+                      {planStatus.buttonText}
                     </Link>
                   ) : (
                     <button
@@ -211,12 +245,13 @@ export default function PricingPage() {
                           : 'border border-primary-600 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900 disabled:opacity-50'
                       }`}
                     >
-                      {isLoading === plan.tier ? 'Processing...' : plan.buttonText}
+                      {isLoading === plan.tier ? 'Processing...' : planStatus.buttonText}
                     </button>
                   )}
                 </div>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>

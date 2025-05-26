@@ -357,16 +357,21 @@ export default function Dashboard() {
           <SubscriptionStatusCard />
         </div>
 
-        {/* Pricing Comparison for Free Users */}
-        {subscription?.subscription_tier === 'FREE' && (
+        {/* Pricing Comparison for Free and Standard Users */}
+        {(subscription?.subscription_tier === 'FREE' || subscription?.subscription_tier === 'STANDARD') && (
           <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Upgrade Your Plan</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Get more requests and unlock advanced features with our paid plans.
+              {subscription?.subscription_tier === 'FREE' ? (
+                <>You're currently on the <span className="font-semibold text-green-600">Free Plan</span>. Upgrade to get more requests and unlock advanced features.</>
+              ) : (
+                <>You're currently on the <span className="font-semibold text-blue-600">Standard Plan</span>. Upgrade to Premium for unlimited requests and advanced features.</>
+              )}
             </p>
             
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className={`grid gap-6 ${subscription?.subscription_tier === 'FREE' ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-md mx-auto'}`}>
               {/* Standard Plan */}
+              {subscription?.subscription_tier === 'FREE' && (
               <div 
                 className="border border-blue-200 dark:border-blue-800 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20"
                 onClick={() => handleUpgrade('STANDARD')}
@@ -408,6 +413,7 @@ export default function Dashboard() {
                   Upgrade to Standard
                 </button>
               </div>
+              )}
 
               {/* Premium Plan */}
               <div 
