@@ -4,9 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
+import { useSubscription } from '@/context/SubscriptionContext';
 import { supabase } from '@/lib/supabase';
 import { FiPlus, FiFolder, FiEdit, FiTrash, FiFile } from '@/lib/react-icons-compat';
 import toast from 'react-hot-toast';
+import SubscriptionStatusCard from '@/components/subscription/SubscriptionStatusCard';
 
 type Project = {
   id: string;
@@ -47,6 +49,7 @@ export default function Dashboard() {
 
   const router = useRouter();
   const { user } = useAuth();
+  const { subscription, createCheckoutSession } = useSubscription();
 
   useEffect(() => {
     if (!user) {
@@ -327,6 +330,15 @@ export default function Dashboard() {
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
   };
 
+  const handleUpgrade = async (tier: 'STANDARD' | 'PREMIUM') => {
+    try {
+      const url = await createCheckoutSession(tier);
+      window.location.href = url;
+    } catch (error) {
+      toast.error('Failed to start checkout process');
+    }
+  };
+
   return (
     <Layout>
       <div className="max-w-6xl mx-auto">
@@ -339,6 +351,111 @@ export default function Dashboard() {
             <span className="mr-2"><FiPlus size={20} /></span> New Topic
           </button>
         </div>
+
+        {/* Subscription Status Card */}
+        <div className="mb-8">
+          <SubscriptionStatusCard />
+        </div>
+
+        {/* Pricing Comparison for Free Users */}
+        {subscription?.subscription_tier === 'FREE' && (
+          <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6 mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Upgrade Your Plan</h2>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Get more requests and unlock advanced features with our paid plans.
+            </p>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Standard Plan */}
+              <div 
+                className="border border-blue-200 dark:border-blue-800 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20"
+                onClick={() => handleUpgrade('STANDARD')}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white">Standard Plan</h3>
+                  <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">Popular</span>
+                </div>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                  $14.99<span className="text-sm font-normal text-gray-500 dark:text-gray-400">/month</span>
+                </p>
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-6">
+                  <li className="flex items-center">
+                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    100 requests per month
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    All content types
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Priority support
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Knowledge base integration
+                  </li>
+                </ul>
+                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-medium transition-colors duration-200">
+                  Upgrade to Standard
+                </button>
+              </div>
+
+              {/* Premium Plan */}
+              <div 
+                className="border border-purple-200 dark:border-purple-800 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 relative"
+                onClick={() => handleUpgrade('PREMIUM')}
+              >
+                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                  <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium">Best Value</span>
+                </div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white">Premium Plan</h3>
+                </div>
+                <p className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                  $59.99<span className="text-sm font-normal text-gray-500 dark:text-gray-400">/month</span>
+                </p>
+                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-6">
+                  <li className="flex items-center">
+                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Unlimited requests
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    All content types
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Priority support
+                  </li>
+                  <li className="flex items-center">
+                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                    Advanced analytics
+                  </li>
+                </ul>
+                <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-md font-medium transition-colors duration-200">
+                  Upgrade to Premium
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {showNewProject && (
           <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6 mb-8">

@@ -5,18 +5,28 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import { useSubscription } from '@/context/SubscriptionContext';
+import { useAuth } from '@/context/AuthContext';
 import { FiCheck, FiX, FiStar, FiZap, FiShield, FiHeadphones } from '@/lib/react-icons-compat';
+import toast from 'react-hot-toast';
 
 export default function PricingPage() {
   const { subscription, createCheckoutSession } = useSubscription();
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
-  const handleSubscribe = async (priceId: string, planName: string) => {
-    setIsLoading(priceId);
+  const handleSubscribe = async (tier: 'STANDARD' | 'PREMIUM') => {
+    if (!user) {
+      toast.error('Please log in to subscribe to a plan');
+      return;
+    }
+
+    setIsLoading(tier);
     try {
-      await createCheckoutSession(priceId);
+      const url = await createCheckoutSession(tier);
+      window.location.href = url;
     } catch (error) {
       console.error('Subscription error:', error);
+      toast.error('Failed to start checkout process');
     } finally {
       setIsLoading(null);
     }
@@ -44,7 +54,7 @@ export default function PricingPage() {
       buttonText: 'Get Started Free',
       buttonLink: '/signup',
       popular: false,
-      priceId: null
+      tier: null
     },
     {
       name: 'Standard',
@@ -65,7 +75,7 @@ export default function PricingPage() {
       buttonText: 'Choose Standard',
       buttonLink: null,
       popular: true,
-      priceId: 'price_standard' // Replace with actual Stripe price ID
+      tier: 'STANDARD' as const
     },
     {
       name: 'Premium',
@@ -88,7 +98,7 @@ export default function PricingPage() {
       buttonText: 'Choose Premium',
       buttonLink: null,
       popular: false,
-      priceId: 'price_premium' // Replace with actual Stripe price ID
+      tier: 'PREMIUM' as const
     }
   ];
 
@@ -193,15 +203,15 @@ export default function PricingPage() {
                     </Link>
                   ) : (
                     <button
-                      onClick={() => plan.priceId && handleSubscribe(plan.priceId, plan.name)}
-                      disabled={isLoading === plan.priceId || !plan.priceId}
+                      onClick={() => plan.tier && handleSubscribe(plan.tier)}
+                      disabled={isLoading === plan.tier || !plan.tier}
                       className={`w-full px-6 py-3 font-medium rounded-lg transition duration-300 ${
                         plan.popular
                           ? 'bg-primary-600 hover:bg-primary-700 text-white disabled:opacity-50'
                           : 'border border-primary-600 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900 disabled:opacity-50'
                       }`}
                     >
-                      {isLoading === plan.priceId ? 'Processing...' : plan.buttonText}
+                      {isLoading === plan.tier ? 'Processing...' : plan.buttonText}
                     </button>
                   )}
                 </div>

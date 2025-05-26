@@ -39,6 +39,17 @@ declare module 'react-icons/fi' {
   export const FiMinus: IconType;
   export const FiTrash: IconType;
   export const FiEdit: IconType;
+  export const FiCreditCard: IconType;
+  export const FiTrendingUp: IconType;
+  export const FiTrendingDown: IconType;
+  export const FiInfo: IconType;
+  export const FiCalendar: IconType;
+  export const FiZap: IconType;
+  export const FiShield: IconType;
+  export const FiStar: IconType;
+  export const FiBarChart2: IconType;
+  export const FiArrowUp: IconType;
+  export const FiArrowDown: IconType;
 }
 
 declare module 'react-hot-toast' {
