@@ -14,7 +14,7 @@ import {
   FiBarChart2,
   FiArrowUp,
   FiMinus
-} from 'react-icons/fi';
+} from '@/lib/react-icons-compat';
 
 interface SubscriptionStatusCardProps {
   className?: string;

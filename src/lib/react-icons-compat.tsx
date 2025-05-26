@@ -28,4 +28,13 @@ export const FiCheck = (props: any) => <span className={props.className}>✅</sp
 export const FiStar = (props: any) => <span className={props.className}>⭐</span>;
 export const FiZap = (props: any) => <span className={props.className}>⚡</span>;
 export const FiShield = (props: any) => <span className={props.className}>🛡️</span>;
-export const FiHeadphones = (props: any) => <span className={props.className}>🎧</span>; 
+export const FiHeadphones = (props: any) => <span className={props.className}>🎧</span>;
+export const FiCreditCard = (props: any) => <span className={props.className}>💳</span>;
+export const FiTrendingUp = (props: any) => <span className={props.className}>📈</span>;
+export const FiTrendingDown = (props: any) => <span className={props.className}>📉</span>;
+export const FiInfo = (props: any) => <span className={props.className}>ℹ️</span>;
+export const FiCalendar = (props: any) => <span className={props.className}>📅</span>;
+export const FiBarChart2 = (props: any) => <span className={props.className}>📊</span>;
+export const FiArrowUp = (props: any) => <span className={props.className}>⬆️</span>;
+export const FiArrowDown = (props: any) => <span className={props.className}>⬇️</span>;
+export const FiMinus = (props: any) => <span className={props.className}>➖</span>; 
