@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { useAuth } from '@/context/AuthContext';
-import { FiFileText, FiCpu, FiTwitter, FiMessageSquare, FiCheck } from '@/lib/react-icons-compat';
+import { FileText as FiFileText, Cpu as FiCpu, Twitter as FiTwitter, MessageSquare as FiMessageSquare, Check as FiCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Home() {

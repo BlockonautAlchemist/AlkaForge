@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
-import { FiCheck, FiAlertCircle } from '@/lib/react-icons-compat';
+import { Check as FiCheck, AlertCircle as FiAlertCircle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import toast from 'react-hot-toast';
 

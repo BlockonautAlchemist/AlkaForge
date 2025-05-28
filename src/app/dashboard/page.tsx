@@ -6,7 +6,7 @@ import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { supabase } from '@/lib/supabase';
-import { FiPlus, FiFolder, FiEdit, FiTrash, FiFile } from '@/lib/react-icons-compat';
+import { Plus as FiPlus, Folder as FiFolder, Edit as FiEdit, Trash as FiTrash, File as FiFile } from 'lucide-react';
 import toast from 'react-hot-toast';
 import SubscriptionStatusCard from '@/components/subscription/SubscriptionStatusCard';
 

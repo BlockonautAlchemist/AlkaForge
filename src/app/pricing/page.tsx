@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { useAuth } from '@/context/AuthContext';
-import { FiCheck, FiX, FiStar, FiZap, FiShield, FiHeadphones } from '@/lib/react-icons-compat';
+import { Check as FiCheck, X as FiX, Star as FiStar, Zap as FiZap, Shield as FiShield, Headphones as FiHeadphones } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function PricingPage() {

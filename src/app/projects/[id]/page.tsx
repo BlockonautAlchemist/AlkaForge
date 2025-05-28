@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/lib/supabase';
-import { FiArrowLeft, FiEdit2, FiSave, FiTrash2, FiUpload, FiFile, FiX } from '@/lib/react-icons-compat';
+import { ArrowLeft as FiArrowLeft, Edit2 as FiEdit2, Save as FiSave, Trash2 as FiTrash2, Upload as FiUpload, File as FiFile, X as FiX } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type Project = {

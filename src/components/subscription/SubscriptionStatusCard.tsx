@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { useAuth } from '@/context/AuthContext';
 import toast from 'react-hot-toast';
-import { 
-  FiCreditCard, 
-  FiTrendingUp, 
-  FiTrendingDown, 
-  FiInfo, 
-  FiCalendar, 
-  FiZap, 
-  FiShield, 
-  FiStar,
-  FiBarChart2,
-  FiArrowUp,
-  FiMinus
-} from '@/lib/react-icons-compat';
+import {
+  CreditCard as FiCreditCard,
+  TrendingUp as FiTrendingUp,
+  TrendingDown as FiTrendingDown,
+  Info as FiInfo,
+  Calendar as FiCalendar,
+  Zap as FiZap,
+  Shield as FiShield,
+  Star as FiStar,
+  BarChart2 as FiBarChart2,
+  ArrowUp as FiArrowUp,
+  Minus as FiMinus
+} from 'lucide-react';
 
 interface SubscriptionStatusCardProps {
   className?: string;

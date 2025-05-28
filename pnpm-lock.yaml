@@ -29,6 +29,9 @@ importers:
       formidable:
         specifier: ^3.5.2
         version: 3.5.2
+      lucide-react:
+        specifier: ^0.372.0
+        version: 0.372.0(react@18.3.1)
       micro:
         specifier: ^10.0.1
         version: 10.0.1
@@ -1578,6 +1581,11 @@ packages:
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
+
+  lucide-react@0.372.0:
+    resolution: {integrity: sha512-0cKdqmilHXWUwWAWnf6CrrjHD8YaqPMtLrmEHXolZusNTr9epULCsiJwIOHk2q1yFxdEwd96D4zShlAj67UJdA==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0
 
   math-intrinsics@1.1.0:
     resolution: {integrity: sha512-/IXtbwEk5HTPyEwyKX6hGkYXxM9nbj64B+ilVJnC/R6B0pH5G4V3b0pVbL7DBj4tkhBAppbQUlf6F6Xl9LHu1g==}
@@ -4269,6 +4277,10 @@ snapshots:
       js-tokens: 4.0.0
 
   lru-cache@10.4.3: {}
+
+  lucide-react@0.372.0(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   math-intrinsics@1.1.0: {}
 

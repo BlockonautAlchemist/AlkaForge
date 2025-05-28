@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
-import { FiMail, FiLock, FiAlertCircle } from '@/lib/react-icons-compat';
+import { Mail as FiMail, Lock as FiLock, AlertCircle as FiAlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Login() {
