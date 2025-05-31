@@ -55,7 +55,6 @@ export default function PricingPage() {
       description: 'Perfect for getting started with AI content creation',
       features: [
         '10 requests per month',
-        'Basic content generation',
         'X posts and threads',
         'Discord announcements',
         'Email support',
@@ -63,8 +62,7 @@ export default function PricingPage() {
       ],
       limitations: [
         'Limited to 10 requests',
-        'No priority support',
-        'Basic templates only'
+        'No priority support'
       ],
       buttonText: 'Get Started Free',
       buttonLink: '/signup',
@@ -82,9 +80,7 @@ export default function PricingPage() {
         'Advanced AI generation',
         'Priority support',
         'Knowledge base integration',
-        'Custom templates',
-        'Analytics dashboard',
-        'Export options'
+        'Custom templates'
       ],
       limitations: [],
       buttonText: 'Choose Standard',
@@ -104,10 +100,7 @@ export default function PricingPage() {
         'Priority support',
         'Knowledge base integration',
         'Custom templates',
-        'Advanced analytics',
-        'Team collaboration',
-        'API access',
-        'White-label options'
+        'API access'
       ],
       limitations: [],
       buttonText: 'Choose Premium',
@@ -303,20 +296,8 @@ export default function PricingPage() {
                   <td className="p-6 text-center"><FiCheck className="text-green-500 mx-auto" /></td>
                   <td className="p-6 text-center"><FiCheck className="text-green-500 mx-auto" /></td>
                 </tr>
-                <tr className="border-b border-gray-100 dark:border-dark-300">
-                  <td className="p-6 text-gray-900 dark:text-white">Advanced Analytics</td>
-                  <td className="p-6 text-center"><FiX className="text-red-500 mx-auto" /></td>
-                  <td className="p-6 text-center"><FiX className="text-red-500 mx-auto" /></td>
-                  <td className="p-6 text-center"><FiCheck className="text-green-500 mx-auto" /></td>
-                </tr>
-                <tr className="border-b border-gray-100 dark:border-dark-300">
-                  <td className="p-6 text-gray-900 dark:text-white">API Access</td>
-                  <td className="p-6 text-center"><FiX className="text-red-500 mx-auto" /></td>
-                  <td className="p-6 text-center"><FiX className="text-red-500 mx-auto" /></td>
-                  <td className="p-6 text-center"><FiCheck className="text-green-500 mx-auto" /></td>
-                </tr>
                 <tr>
-                  <td className="p-6 text-gray-900 dark:text-white">Team Collaboration</td>
+                  <td className="p-6 text-gray-900 dark:text-white">API Access (Coming Soon)</td>
                   <td className="p-6 text-center"><FiX className="text-red-500 mx-auto" /></td>
                   <td className="p-6 text-center"><FiX className="text-red-500 mx-auto" /></td>
                   <td className="p-6 text-center"><FiCheck className="text-green-500 mx-auto" /></td>

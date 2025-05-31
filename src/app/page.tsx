@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { useAuth } from '@/context/AuthContext';
-import { FileText as FiFileText, Cpu as FiCpu, Twitter as FiTwitter, MessageSquare as FiMessageSquare, Check as FiCheck } from 'lucide-react';
+import { Edit as FiEdit, Trophy as FiTrophy, Users as FiUsers, TrendingUp as FiTrendingUp, Check as FiCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Home() {
@@ -106,44 +106,44 @@ export default function Home() {
             {/* Feature 1 */}
             <div className="bg-white dark:bg-dark-200 p-6 rounded-lg shadow-md">
               <div className="bg-primary-100 dark:bg-primary-900 p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                <FiFileText className="text-primary-600 dark:text-primary-400 text-xl" />
+                <FiEdit className="text-primary-600 dark:text-primary-400 text-xl" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Knowledge Base</h3>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Custom Prompting Built In</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Upload PDFs, TXT, and Markdown files to provide context for your AI-generated content.
+                We generate the right prompts for your voice and goals — no prompt writing needed.
               </p>
             </div>
 
             {/* Feature 2 */}
             <div className="bg-white dark:bg-dark-200 p-6 rounded-lg shadow-md">
               <div className="bg-primary-100 dark:bg-primary-900 p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                <FiCpu className="text-primary-600 dark:text-primary-400 text-xl" />
+                <FiTrophy className="text-primary-600 dark:text-primary-400 text-xl" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">AI Generation</h3>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Trained on Winning Copy</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Powered by Claude-3.7-Sonnet, produce high-quality content tailored to your needs.
+                Built on high-performing content that gets clicks, shares, and replies.
               </p>
             </div>
 
             {/* Feature 3 */}
             <div className="bg-white dark:bg-dark-200 p-6 rounded-lg shadow-md">
               <div className="bg-primary-100 dark:bg-primary-900 p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                <FiTwitter className="text-primary-600 dark:text-primary-400 text-xl" />
+                <FiUsers className="text-primary-600 dark:text-primary-400 text-xl" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Social Content</h3>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Sounds Human, Not AI</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Create engaging X posts and threads that captivate your audience.
+                Natural, clean writing that's ready to post — no editing required.
               </p>
             </div>
 
             {/* Feature 4 */}
             <div className="bg-white dark:bg-dark-200 p-6 rounded-lg shadow-md">
               <div className="bg-primary-100 dark:bg-primary-900 p-3 rounded-full w-12 h-12 flex items-center justify-center mb-4">
-                <FiMessageSquare className="text-primary-600 dark:text-primary-400 text-xl" />
+                <FiTrendingUp className="text-primary-600 dark:text-primary-400 text-xl" />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Discord Integration</h3>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Made for Social Growth</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Craft perfect Discord announcements formatted beautifully with markdown.
+                Write threads, X posts, and announcements that build your brand and presence.
               </p>
             </div>
           </div>
