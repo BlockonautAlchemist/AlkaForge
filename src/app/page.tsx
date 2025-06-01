@@ -53,10 +53,10 @@ export default function Home() {
       <section className="py-12 md:py-20">
         <div className="container mx-auto text-center px-4">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-6">
-            <span className="text-primary-600 dark:text-primary-400">AI-Powered</span> Content Management
+            <span className="text-primary-600 dark:text-primary-400">AI-Powered</span> Copywriting For Brand Builders
           </h1>
           <p className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-10">
-            Create stunning X posts, threads, replies, and Discord announcements with the help of AI.
+            Create perfect X posts, threads, and Discord announcements with the help of AI.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
             {user ? (
@@ -110,7 +110,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Custom Prompting Built In</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                We generate the right prompts for your voice and goals — no prompt writing needed.
+                We generate the right prompts for your voice and goals — no prompt writing necessary.
               </p>
             </div>
 
@@ -132,7 +132,7 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">Sounds Human, Not AI</h3>
               <p className="text-gray-600 dark:text-gray-300">
-                Natural, clean writing that's ready to post — no editing required.
+                Natural, clean writing that's ready to post.
               </p>
             </div>
 
@@ -334,7 +334,7 @@ export default function Home() {
                   <svg className="w-5 h-5 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                   </svg>
-                  <span className="text-gray-600 dark:text-gray-300">Advanced analytics</span>
+                  <span className="text-gray-600 dark:text-gray-300">Knowledge base integration</span>
                 </li>
               </ul>
               {planStatus.isCurrent && (

@@ -100,7 +100,7 @@ export default function PricingPage() {
         'Priority support',
         'Knowledge base integration',
         'Custom templates',
-        'API access'
+        'API access (Coming Soon)'
       ],
       limitations: [],
       buttonText: 'Choose Premium',
