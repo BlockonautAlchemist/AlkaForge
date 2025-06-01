@@ -49,7 +49,7 @@ export default function Dashboard() {
 
   const router = useRouter();
   const { user } = useAuth();
-  const { subscription, createCheckoutSession } = useSubscription();
+  const { subscription, createCheckoutSession, createCustomerPortalSession } = useSubscription();
 
   useEffect(() => {
     if (!user) {
@@ -352,117 +352,6 @@ export default function Dashboard() {
           </button>
         </div>
 
-        {/* Subscription Status Card */}
-        <div className="mb-8">
-          <SubscriptionStatusCard />
-        </div>
-
-        {/* Pricing Comparison for Free and Standard Users */}
-        {(subscription?.subscription_tier === 'FREE' || subscription?.subscription_tier === 'STANDARD') && (
-          <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Upgrade Your Plan</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              {subscription?.subscription_tier === 'FREE' ? (
-                <>You're currently on the <span className="font-semibold text-green-600">Free Plan</span>. Upgrade to get more requests and unlock advanced features.</>
-              ) : (
-                <>You're currently on the <span className="font-semibold text-blue-600">Standard Plan</span>. Upgrade to Premium for unlimited requests and advanced features.</>
-              )}
-            </p>
-            
-            <div className={`grid gap-6 ${subscription?.subscription_tier === 'FREE' ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-md mx-auto'}`}>
-              {/* Standard Plan */}
-              {subscription?.subscription_tier === 'FREE' && (
-              <div 
-                className="border border-blue-200 dark:border-blue-800 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20"
-                onClick={() => handleUpgrade('STANDARD')}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white">Standard Plan</h3>
-                  <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">Popular</span>
-                </div>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                  $14.99<span className="text-sm font-normal text-gray-500 dark:text-gray-400">/month</span>
-                </p>
-                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-6">
-                  <li className="flex items-center">
-                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    100 requests per month
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    All content types
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    Priority support
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    Knowledge base integration
-                  </li>
-                </ul>
-                <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-medium transition-colors duration-200">
-                  Upgrade to Standard
-                </button>
-              </div>
-              )}
-
-              {/* Premium Plan */}
-              <div 
-                className="border border-purple-200 dark:border-purple-800 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 relative"
-                onClick={() => handleUpgrade('PREMIUM')}
-              >
-                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium">Best Value</span>
-                </div>
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white">Premium Plan</h3>
-                </div>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                  $59.99<span className="text-sm font-normal text-gray-500 dark:text-gray-400">/month</span>
-                </p>
-                <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-6">
-                  <li className="flex items-center">
-                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    Unlimited requests
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    All content types
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    Priority support
-                  </li>
-                  <li className="flex items-center">
-                    <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                    Advanced analytics
-                  </li>
-                </ul>
-                <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-md font-medium transition-colors duration-200">
-                  Upgrade to Premium
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         {showNewProject && (
           <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6 mb-8">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Create New Topic</h2>
@@ -581,69 +470,216 @@ export default function Dashboard() {
           </div>
         )}
 
-        {loading ? (
-          <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
-          </div>
-        ) : projects.length === 0 ? (
-          <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-8 text-center">
-            <div className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-600 mb-4">
-              <FiFolder size={20} />
+        {/* User Topics Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Your Topics</h2>
+          {loading ? (
+            <div className="flex justify-center items-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
             </div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No topics found</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Create your first topic to start organizing your content.
-            </p>
-            <button
-              onClick={() => setShowNewProject(true)}
-              className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
-            >
-              Create Your First Topic
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project: Project) => (
-              <div key={project.id} className="bg-white dark:bg-dark-100 rounded-lg shadow-md overflow-hidden flex flex-col h-full">
-                <div className="p-6 flex-grow">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 truncate">{project.name}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
-                    {project.description || "No description provided"}
-                  </p>
-                  <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mb-4">
-                    <span className="flex items-center">
-                      <span className="mr-1"><FiFile size={20} /></span> {project.file_count} files
-                    </span>
-                    <span>Created {formatDate(project.created_at)}</span>
-                  </div>
-                  <div className="space-y-2">
-                    <button
-                      onClick={() => router.push(`/generator?projectId=${project.id}`)}
-                      className="w-full flex items-center justify-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
-                    >
-                      <span className="mr-2"><FiFile size={20} /></span>
-                      Generate Content
-                    </button>
-                    <div className="flex space-x-2">
+          ) : projects.length === 0 ? (
+            <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-8 text-center">
+              <div className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-600 mb-4">
+                <FiFolder size={20} />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No topics found</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Create your first topic to start organizing your content.
+              </p>
+              <button
+                onClick={() => setShowNewProject(true)}
+                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
+              >
+                Create Your First Topic
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.map((project: Project) => (
+                <div key={project.id} className="bg-white dark:bg-dark-100 rounded-lg shadow-md overflow-hidden flex flex-col h-full">
+                  <div className="p-6 flex-grow">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3 truncate">{project.name}</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                      {project.description || "No description provided"}
+                    </p>
+                    <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mb-4">
+                      <span className="flex items-center">
+                        <span className="mr-1"><FiFile size={20} /></span> {project.file_count} files
+                      </span>
+                      <span>Created {formatDate(project.created_at)}</span>
+                    </div>
+                    <div className="space-y-2">
                       <button
-                        onClick={() => router.push(`/projects/${project.id}`)}
-                        className="flex-1 flex items-center justify-center px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-dark-200 dark:hover:bg-dark-300 text-gray-700 dark:text-gray-300 rounded-md shadow-sm transition duration-300"
+                        onClick={() => router.push(`/generator?projectId=${project.id}`)}
+                        className="w-full flex items-center justify-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
                       >
-                        <span className="mr-2"><FiEdit size={20} /></span>
-                        Edit Topic
+                        <span className="mr-2"><FiFile size={20} /></span>
+                        Generate Content
                       </button>
-                      <button
-                        onClick={() => deleteProject(project.id)}
-                        className="flex-1 flex items-center justify-center px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-md shadow-sm transition duration-300"
-                      >
-                        <span className="mr-2"><FiTrash size={20} /></span>
-                        Delete
-                      </button>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => router.push(`/projects/${project.id}`)}
+                          className="flex-1 flex items-center justify-center px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-dark-200 dark:hover:bg-dark-300 text-gray-700 dark:text-gray-300 rounded-md shadow-sm transition duration-300"
+                        >
+                          <span className="mr-2"><FiEdit size={20} /></span>
+                          Edit Topic
+                        </button>
+                        <button
+                          onClick={() => deleteProject(project.id)}
+                          className="flex-1 flex items-center justify-center px-4 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/10 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 rounded-md shadow-sm transition duration-300"
+                        >
+                          <span className="mr-2"><FiTrash size={20} /></span>
+                          Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Separator */}
+        <div className="border-t border-gray-200 dark:border-dark-300 my-8"></div>
+
+        {/* Analytics Section */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Analytics & Subscription</h2>
+          
+          {/* Subscription Status Card */}
+          <div className="mb-8">
+            <SubscriptionStatusCard />
+          </div>
+
+          {/* Pricing Comparison for Free and Standard Users */}
+          {(subscription?.subscription_tier === 'FREE' || subscription?.subscription_tier === 'STANDARD') && (
+            <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6 mb-8">
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Upgrade Your Plan</h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                {subscription?.subscription_tier === 'FREE' ? (
+                  <>You're currently on the <span className="font-semibold text-green-600">Free Plan</span>. Upgrade to get more requests and unlock advanced features.</>
+                ) : (
+                  <>You're currently on the <span className="font-semibold text-blue-600">Standard Plan</span>. Upgrade to Premium for unlimited requests and advanced features.</>
+                )}
+              </p>
+              
+              <div className={`grid gap-6 ${subscription?.subscription_tier === 'FREE' ? 'md:grid-cols-2' : 'md:grid-cols-1 max-w-md mx-auto'}`}>
+                {/* Standard Plan */}
+                {subscription?.subscription_tier === 'FREE' && (
+                <div 
+                  className="border border-blue-200 dark:border-blue-800 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20"
+                  onClick={() => handleUpgrade('STANDARD')}
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-lg text-gray-900 dark:text-white">Standard Plan</h3>
+                    <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs font-medium">Popular</span>
+                  </div>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                    $14.99<span className="text-sm font-normal text-gray-500 dark:text-gray-400">/month</span>
+                  </p>
+                  <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-6">
+                    <li className="flex items-center">
+                      <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      100 requests per month
+                    </li>
+                    <li className="flex items-center">
+                      <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      All content types
+                    </li>
+                    <li className="flex items-center">
+                      <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Priority support
+                    </li>
+                    <li className="flex items-center">
+                      <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Knowledge base integration
+                    </li>
+                  </ul>
+                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md font-medium transition-colors duration-200">
+                    Upgrade to Standard
+                  </button>
+                </div>
+                )}
+
+                {/* Premium Plan */}
+                <div 
+                  className="border border-purple-200 dark:border-purple-800 rounded-lg p-6 cursor-pointer hover:shadow-lg transition-shadow duration-200 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 relative"
+                  onClick={() => handleUpgrade('PREMIUM')}
+                >
+                  <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                    <span className="bg-purple-600 text-white px-3 py-1 rounded-full text-xs font-medium">Best Value</span>
+                  </div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-lg text-gray-900 dark:text-white">Premium Plan</h3>
+                  </div>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                    $59.99<span className="text-sm font-normal text-gray-500 dark:text-gray-400">/month</span>
+                  </p>
+                  <ul className="space-y-2 text-sm text-gray-600 dark:text-gray-300 mb-6">
+                    <li className="flex items-center">
+                      <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Unlimited requests
+                    </li>
+                    <li className="flex items-center">
+                      <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      All content types
+                    </li>
+                    <li className="flex items-center">
+                      <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Priority support
+                    </li>
+                    <li className="flex items-center">
+                      <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Advanced analytics
+                    </li>
+                  </ul>
+                  <button className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 rounded-md font-medium transition-colors duration-200">
+                    Upgrade to Premium
+                  </button>
+                </div>
               </div>
-            ))}
+            </div>
+          )}
+        </div>
+
+        {/* Plan Management Section - Subtle and unobtrusive */}
+        {(subscription?.subscription_tier === 'STANDARD' || subscription?.subscription_tier === 'PREMIUM') && (
+          <div className="mt-16 pt-8 border-t border-gray-100 dark:border-dark-400">
+            <div className="text-center">
+              <p className="text-xs text-gray-400 dark:text-gray-500 mb-3">
+                Need to make changes to your subscription?
+              </p>
+              <button
+                onClick={async () => {
+                  try {
+                    const url = await createCustomerPortalSession();
+                    window.location.href = url;
+                  } catch (error) {
+                    toast.error('Failed to open billing portal');
+                  }
+                }}
+                className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline transition-colors duration-200"
+              >
+                Manage subscription or cancel
+              </button>
+            </div>
           </div>
         )}
       </div>
