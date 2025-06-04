@@ -15,6 +15,8 @@ export const config = {
 type ResponseData = {
   url?: string;
   error?: string;
+  upgrade_required?: boolean;
+  current_plan?: string;
 };
 
 export default async function handler(
