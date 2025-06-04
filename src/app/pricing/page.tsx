@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { useAuth } from '@/context/AuthContext';
-import { Check as FiCheck, X as FiX, Star as FiStar, Zap as FiZap, Shield as FiShield, Headphones as FiHeadphones } from 'lucide-react';
+import { FiCheck, FiX, FiStar, FiZap, FiShield, FiHeadphones } from '@/lib/react-icons-compat';
 import toast from 'react-hot-toast';
 
 export default function PricingPage() {
@@ -57,12 +57,12 @@ export default function PricingPage() {
         '10 requests per month',
         'X posts and threads',
         'Discord announcements',
-        'Email support',
-        'Knowledge base upload'
+        'Email support'
       ],
       limitations: [
         'Limited to 10 requests',
-        'No priority support'
+        'No priority support',
+        'No knowledge base upload'
       ],
       buttonText: 'Get Started Free',
       buttonLink: '/signup',
@@ -286,7 +286,7 @@ export default function PricingPage() {
                 </tr>
                 <tr className="border-b border-gray-100 dark:border-dark-300">
                   <td className="p-6 text-gray-900 dark:text-white">Knowledge Base Upload</td>
-                  <td className="p-6 text-center"><FiCheck className="text-green-500 mx-auto" /></td>
+                  <td className="p-6 text-center"><FiX className="text-red-500 mx-auto" /></td>
                   <td className="p-6 text-center"><FiCheck className="text-green-500 mx-auto" /></td>
                   <td className="p-6 text-center"><FiCheck className="text-green-500 mx-auto" /></td>
                 </tr>

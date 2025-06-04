@@ -101,4 +101,9 @@ export function shouldWarnAboutLimits(tier: SubscriptionTier, currentUsage: numb
   
   // Other tiers warning at 80% of limit
   return currentUsage >= (tierDetails as LimitedTier).monthlyRequests * 0.8;
+}
+
+// Helper function to check if user has knowledge base access
+export function hasKnowledgeBaseAccess(tier: SubscriptionTier): boolean {
+  return tier === 'STANDARD' || tier === 'PREMIUM';
 } 

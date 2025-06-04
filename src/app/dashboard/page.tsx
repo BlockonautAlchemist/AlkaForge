@@ -6,7 +6,7 @@ import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { supabase } from '@/lib/supabase';
-import { Plus as FiPlus, Folder as FiFolder, Edit as FiEdit, Trash as FiTrash, File as FiFile } from 'lucide-react';
+import { FiPlus, FiFolder, FiEdit, FiTrash, FiFile, FiLock, FiArrowUp } from '@/lib/react-icons-compat';
 import toast from 'react-hot-toast';
 import SubscriptionStatusCard from '@/components/subscription/SubscriptionStatusCard';
 
@@ -325,11 +325,6 @@ export default function Dashboard() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-  };
-
   const handleUpgrade = async (tier: 'STANDARD' | 'PREMIUM') => {
     try {
       const url = await createCheckoutSession(tier);
@@ -393,48 +388,72 @@ export default function Dashboard() {
                 <label htmlFor="knowledgeFiles" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                   Add Knowledge Files (Optional)
                 </label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-dark-300 border-dashed rounded-md">
-                  <div className="space-y-1 text-center">
-                    <div className="mx-auto h-12 w-12 text-gray-400">
-                      <FiFile size={20} />
-                    </div>
-                    <div className="flex text-sm text-gray-600 dark:text-gray-400">
-                      <label
-                        htmlFor="file-upload"
-                        className="relative cursor-pointer bg-white dark:bg-dark-200 rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500"
-                      >
-                        <span>Upload files</span>
-                        <input 
-                          id="file-upload" 
-                          name="file-upload" 
-                          type="file" 
-                          className="sr-only"
-                          multiple
-                          accept=".pdf,.txt,.md" 
-                          onChange={handleFileChange}
-                        />
-                      </label>
-                      <p className="pl-1">or drag and drop</p>
-                    </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      PDF, TXT, or MD up to 10MB
-                    </p>
-                    {uploadFiles.length > 0 && (
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {uploadFiles.length} file(s) selected
-                        </p>
-                        <ul className="mt-1 text-xs text-left text-gray-500 max-h-24 overflow-y-auto">
-                          {uploadFiles.map((file: File, index: number) => (
-                            <li key={index} className="truncate">
-                              {file.name} ({(file.size / 1024).toFixed(1)} KB)
-                            </li>
-                          ))}
-                        </ul>
+                {subscription?.subscription_tier === 'FREE' ? (
+                  <div className="mt-1 px-6 py-8 border-2 border-yellow-300 dark:border-yellow-600 border-dashed rounded-md bg-yellow-50 dark:bg-yellow-900/20">
+                    <div className="text-center">
+                      <div className="mx-auto h-12 w-12 text-yellow-500 mb-4">
+                        <FiLock size={48} />
                       </div>
-                    )}
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                        Knowledge Base Upload - Premium Feature
+                      </h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                        Upload PDF, TXT, and MD files to enhance your content generation with custom knowledge bases. 
+                        This feature is available with Standard and Premium plans.
+                      </p>
+                      <button
+                        onClick={() => handleUpgrade('STANDARD')}
+                        className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-sm transition duration-300"
+                      >
+                        <FiArrowUp className="mr-2" />
+                        Upgrade to Standard Plan
+                      </button>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-dark-300 border-dashed rounded-md">
+                    <div className="space-y-1 text-center">
+                      <div className="mx-auto h-12 w-12 text-gray-400">
+                        <FiFile size={20} />
+                      </div>
+                      <div className="flex text-sm text-gray-600 dark:text-gray-400">
+                        <label
+                          htmlFor="file-upload"
+                          className="relative cursor-pointer bg-white dark:bg-dark-200 rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500"
+                        >
+                          <span>Upload files</span>
+                          <input 
+                            id="file-upload" 
+                            name="file-upload" 
+                            type="file" 
+                            className="sr-only"
+                            multiple
+                            accept=".pdf,.txt,.md" 
+                            onChange={handleFileChange}
+                          />
+                        </label>
+                        <p className="pl-1">or drag and drop</p>
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        PDF, TXT, or MD up to 10MB
+                      </p>
+                      {uploadFiles.length > 0 && (
+                        <div className="mt-2">
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {uploadFiles.length} file(s) selected
+                          </p>
+                          <ul className="mt-1 text-xs text-left text-gray-500 max-h-24 overflow-y-auto">
+                            {uploadFiles.map((file: File, index: number) => (
+                              <li key={index} className="truncate">
+                                {file.name} ({(file.size / 1024).toFixed(1)} KB)
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="flex justify-end space-x-3">
                 <button
@@ -502,11 +521,8 @@ export default function Dashboard() {
                     <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
                       {project.description || "No description provided"}
                     </p>
-                    <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 mb-4">
-                      <span className="flex items-center">
-                        <span className="mr-1"><FiFile size={20} /></span> {project.file_count} files
-                      </span>
-                      <span>Created {formatDate(project.created_at)}</span>
+                    <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mb-4">
+                      <span className="mr-1"><FiFile size={20} /></span> {project.file_count} files
                     </div>
                     <div className="space-y-2">
                       <button

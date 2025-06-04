@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
+import { useSubscription } from '@/context/SubscriptionContext';
 import { supabase } from '@/lib/supabase';
-import { ArrowLeft as FiArrowLeft, Edit2 as FiEdit2, Save as FiSave, Trash2 as FiTrash2, Upload as FiUpload, File as FiFile, X as FiX } from 'lucide-react';
+import { FiArrowLeft, FiEdit2, FiSave, FiTrash2, FiUpload, FiFile, FiX, FiLock, FiArrowUp } from '@/lib/react-icons-compat';
 import toast from 'react-hot-toast';
 
 type Project = {
@@ -43,6 +44,7 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
 
   const router = useRouter();
   const { user } = useAuth();
+  const { subscription, createCheckoutSession } = useSubscription();
   const projectId = params.id;
 
   useEffect(() => {
@@ -333,6 +335,15 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
     }
   };
 
+  const handleUpgrade = async (tier: 'STANDARD' | 'PREMIUM') => {
+    try {
+      const url = await createCheckoutSession(tier);
+      window.location.href = url;
+    } catch (error) {
+      toast.error('Failed to start checkout process');
+    }
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -449,15 +460,44 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
         <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Knowledge Files</h2>
-            <button
-              onClick={() => setShowUploadModal(true)}
-              className="flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
-            >
-              <FiUpload className="mr-2" /> Upload File
-            </button>
+            {subscription?.subscription_tier === 'FREE' ? (
+              <div className="text-center">
+                <div className="inline-flex items-center px-4 py-2 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-300 dark:border-yellow-600 rounded-md">
+                  <FiLock className="mr-2 text-yellow-500" />
+                  <span className="text-sm text-yellow-700 dark:text-yellow-300">Premium Feature</span>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowUploadModal(true)}
+                className="flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
+              >
+                <FiUpload className="mr-2" /> Upload File
+              </button>
+            )}
           </div>
 
-          {files.length === 0 ? (
+          {subscription?.subscription_tier === 'FREE' ? (
+            <div className="text-center py-12">
+              <div className="mx-auto h-16 w-16 text-yellow-500 mb-4">
+                <FiLock />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                Knowledge Base Upload - Premium Feature
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-6 max-w-md mx-auto">
+                Upload PDF, TXT, and MD files to enhance your content generation with custom knowledge bases. 
+                This feature is available with Standard and Premium plans.
+              </p>
+              <button
+                onClick={() => handleUpgrade('STANDARD')}
+                className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-sm transition duration-300"
+              >
+                <FiArrowUp className="mr-2" />
+                Upgrade to Standard Plan ($14.99/month)
+              </button>
+            </div>
+          ) : files.length === 0 ? (
             <div className="text-center py-8">
               <FiFile className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600 mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No files yet</h3>
