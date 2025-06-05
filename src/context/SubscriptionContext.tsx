@@ -27,6 +27,7 @@ interface SubscriptionContextType {
   warning: string | null;
   loading: boolean;
   refreshSubscription: () => Promise<void>;
+  syncSubscription: () => Promise<void>;
   createCheckoutSession: (tier: 'STANDARD' | 'PREMIUM') => Promise<string>;
   createCustomerPortalSession: () => Promise<string>;
 }
@@ -103,6 +104,24 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
     }
   };
 
+  const syncSubscription = async (): Promise<void> => {
+    try {
+      setLoading(true);
+      const headers = await getAuthHeaders();
+      const response = await axios.post('/api/subscription/sync', {}, { headers });
+      
+      if (response.data.success) {
+        // Refresh subscription data after sync
+        await refreshSubscription();
+      }
+    } catch (error: any) {
+      console.error('Error syncing subscription:', error);
+      throw new Error('Failed to sync subscription status');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const createCustomerPortalSession = async (): Promise<string> => {
     try {
       const headers = await getAuthHeaders();
@@ -130,6 +149,7 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
         warning,
         loading,
         refreshSubscription,
+        syncSubscription,
         createCheckoutSession,
         createCustomerPortalSession,
       }}
