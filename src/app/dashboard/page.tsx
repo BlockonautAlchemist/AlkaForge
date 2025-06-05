@@ -687,8 +687,9 @@ export default function Dashboard() {
                   try {
                     const url = await createCustomerPortalSession();
                     window.location.href = url;
-                  } catch (error) {
-                    toast.error('Failed to open billing portal');
+                  } catch (error: any) {
+                    const errorMessage = error.message || 'Failed to open billing portal';
+                    toast.error(errorMessage);
                   }
                 }}
                 className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline transition-colors duration-200"

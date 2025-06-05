@@ -108,9 +108,12 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       const headers = await getAuthHeaders();
       const response = await axios.post('/api/subscription/customer-portal', {}, { headers });
       return response.data.url;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating customer portal session:', error);
-      throw new Error('Failed to create customer portal session');
+      
+      // Extract error message from API response
+      const errorMessage = error.response?.data?.error || 'Failed to create customer portal session';
+      throw new Error(errorMessage);
     }
   };
 

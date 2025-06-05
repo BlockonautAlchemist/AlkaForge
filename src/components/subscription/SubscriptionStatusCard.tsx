@@ -64,8 +64,9 @@ const SubscriptionStatusCard: React.FC<SubscriptionStatusCardProps> = ({
     try {
       const url = await createCustomerPortalSession();
       window.location.href = url;
-    } catch (error) {
-      toast.error('Failed to open billing portal');
+    } catch (error: any) {
+      const errorMessage = error.message || 'Failed to open billing portal';
+      toast.error(errorMessage);
     }
   };
 

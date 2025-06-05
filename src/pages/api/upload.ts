@@ -12,6 +12,8 @@ export const config = {
   },
 };
 
+// API endpoint for uploading knowledge base files
+// Restricted to Standard and Premium plans only
 type ResponseData = {
   url?: string;
   error?: string;
