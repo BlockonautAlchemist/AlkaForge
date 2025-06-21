@@ -35,7 +35,7 @@ type OpenRouterResponse = {
 
 type ContentGenerationParams = {
   prompt: string;
-  contentType: 'post' | 'thread' | 'reply' | 'discord';
+  contentType: 'post' | 'thread' | 'reply' | 'discord' | 'hook';
   tone?: 'informative' | 'viral' | 'funny' | 'casual';
   maxTokens?: number;
   knowledgeContent?: string;
@@ -169,7 +169,7 @@ export async function generateContent({
         const parsedContent = JSON.parse(jsonContent);
         
         // Ensure all parts exist and have the call to action in part5
-        if (!parsedContent.part5 || !parsedContent.part5.includes("follow") || !parsedContent.part5.includes("like")) {
+        if (!parsedContent.part5 || !parsedContent.part5.toLowerCase().includes("follow") || !parsedContent.part5.toLowerCase().includes("like")) {
           console.warn("Thread missing proper CTA in part5:", parsedContent.part5);
           
           // If part5 exists but doesn't have a proper CTA, add one
@@ -243,6 +243,50 @@ export async function generateContent({
     } else if (contentType === 'discord') {
       // Keep Discord markdown formatting intact
       content = content.trim();
+    } else if (contentType === 'hook') {
+      // For 3-sentence hooks, ensure clean formatting and appropriate length
+      content = content.trim();
+      
+      // Clean up the content
+      content = content
+        .replace(/^["']|["']$/g, '') // Remove surrounding quotes
+        .replace(/\\n/g, ' ') // Replace newlines with spaces
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
+      
+      // Ensure it's exactly 3 sentences
+      const sentences = content.match(/[^.!?]+[.!?]+/g) || [content];
+      if (sentences.length > 3) {
+        content = sentences.slice(0, 3).join(' ').trim();
+      } else if (sentences.length < 3) {
+        // If we have fewer than 3 sentences, try to split by other punctuation
+        const parts = content.split(/[.!?]+/).filter((part: string) => part.trim().length > 0);
+        if (parts.length >= 3) {
+          content = parts.slice(0, 3).map((part: string) => part.trim() + '.').join(' ').trim();
+        }
+      }
+      
+      // Ensure the hook is compelling and engaging
+      if (content.length > 200) {
+        // If too long, truncate to the first 3 complete sentences that fit
+        const sentences = content.match(/[^.!?]+[.!?]+/g) || [content];
+        content = '';
+        let currentLength = 0;
+        let sentenceCount = 0;
+        
+        for (const sentence of sentences) {
+          const trimmedSentence = sentence.trim();
+          if (currentLength + trimmedSentence.length + (currentLength > 0 ? 1 : 0) <= 200 && sentenceCount < 3) {
+            content += (currentLength > 0 ? ' ' : '') + trimmedSentence;
+            currentLength += trimmedSentence.length + (currentLength > 0 ? 1 : 0);
+            sentenceCount++;
+          } else {
+            break;
+          }
+        }
+        
+        content = content.trim();
+      }
     } else {
       // For posts and replies, ensure clean formatting
       content = content.trim();

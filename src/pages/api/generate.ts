@@ -13,7 +13,7 @@ type ResponseData = {
 
 type RequestData = {
   prompt: string;
-  contentType: 'post' | 'thread' | 'reply' | 'discord';
+  contentType: 'post' | 'thread' | 'reply' | 'discord' | 'hook';
   tone: 'informative' | 'viral' | 'funny' | 'casual';
   maxTokens?: number;
   knowledgeContent?: string;
@@ -58,6 +58,7 @@ async function generateHandler(
     - For X threads: Create a series of connected posts with smooth transitions. IMPORTANT: Each part must be under 280 characters. The final part MUST include a strong call to action encouraging followers to engage by following for more content, liking, and reposting to share with their audience. Use proven X (Twitter) copywriting best practices for the CTA.
     - For replies: Keep it extremely concise - one short, impactful sentence. Maximum 50 characters. Be direct and to the point.
     - For Discord announcements: Use markdown formatting appropriately.
+    - For 3-sentence hooks: You are a top-tier social media copywriter. Your task is to write a compelling 3-sentence hook that grabs attention and introduces the content that follows. The tone should match the selected tone. Avoid fluff. Focus on sparking curiosity, teasing value, or hinting at a surprising insight. Maximum 200 characters total.
     
     REQUIRED REFERENCE EXAMPLES - Use these patterns for ALL content:
     
@@ -85,6 +86,17 @@ async function generateHandler(
     - "We just released our annual [Industry] Report. 3 months of research, 500+ interviews, and 1 clear conclusion: [Insight]. Download free below."
     - "You don't need another tool. You need a solution. That's why we built [Product]."
     - "We didn't want to create another [product category]. We wanted to reinvent it."
+    
+    Pattern 6 - 3-Sentence Hook Examples:
+    - "Most brands think they're telling a story. But what they're really doing is listing features. Here's how to shift your messaging from boring to unforgettable."
+    - "You don't need 2 hours a day in the gym to get strong. You just need a smarter system. This one works even when motivation runs out."
+    - "Most people don't get rich by saving. They do it by understanding leverage. Let me show you how that actually works."
+    - "Your calendar isn't broken — your priorities are. Here's how I fixed both in under 15 minutes a week."
+    - "The biggest reason your business isn't growing? You're working on the wrong thing. This thread will show you where to redirect your focus."
+    - "There's a faster way to learn any new skill. No courses. No books. Just this 3-step method that actually sticks."
+    - "You weren't lazy — you were uninspired. The trick is not discipline, it's design. Here's how to build your day around momentum."
+    - "Most health advice overcomplicates things. You don't need a stack of supplements — just these 3 habits. They changed everything for me."
+    - "The internet moves fast. Here's what just dropped, what's gaining momentum, and what you don't want to miss this week."
     
     Examples of effective thread CTAs:
     - "Found this valuable? Follow me for more insights on [topic]. Like and repost to share with others!"
