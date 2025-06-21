@@ -168,17 +168,27 @@ export async function generateContent({
         // Parse to validate it's proper JSON
         const parsedContent = JSON.parse(jsonContent);
         
-        // Ensure all parts exist and have the call to action in part5
-        if (!parsedContent.part5 || !parsedContent.part5.toLowerCase().includes("follow") || !parsedContent.part5.toLowerCase().includes("like")) {
-          console.warn("Thread missing proper CTA in part5:", parsedContent.part5);
+        // Ensure part10 exists and has a proper call to action
+        const ctaKeywords = ['follow', 'like', 'repost', 'share', 'bookmark', 'save', 'rt', 'retweet'];
+        const hasCTA = parsedContent.part10 && ctaKeywords.some(keyword => 
+          parsedContent.part10.toLowerCase().includes(keyword)
+        );
+        
+        if (!parsedContent.part10 || !hasCTA) {
+          console.warn("Thread missing proper CTA in part10:", parsedContent.part10);
           
-          // If part5 exists but doesn't have a proper CTA, add one
-          if (parsedContent.part5) {
-            parsedContent.part5 = parsedContent.part5.trim() + " Found this valuable? Follow for more insights like this. Like and repost to share with others!";
+          // Create a proper CTA for part10
+          if (!parsedContent.part10) {
+            // If part10 doesn't exist, create it
+            parsedContent.part10 = "Found this valuable? Follow for more insights like this. Like and repost to share with others!";
+          } else {
+            // If part10 exists but lacks CTA, enhance it
+            const existingContent = parsedContent.part10.trim();
+            parsedContent.part10 = `${existingContent} Follow for more insights like this. Like and repost to share!`;
             
             // Make sure it's not too long
-            if (parsedContent.part5.length > 280) {
-              parsedContent.part5 = parsedContent.part5.substring(0, 230) + " Follow for more! Like & RT to share!";
+            if (parsedContent.part10.length > 280) {
+              parsedContent.part10 = existingContent.substring(0, 200) + " Follow for more! Like & RT to share!";
             }
           }
         }
@@ -186,7 +196,7 @@ export async function generateContent({
         // Convert to a human-readable thread format
         // Each part on a new line, separated by double line breaks
         const threadParts = [];
-        for (let i = 1; i <= 5; i++) {
+        for (let i = 1; i <= 10; i++) {
           const part = parsedContent[`part${i}`];
           if (part) {
             threadParts.push(part);

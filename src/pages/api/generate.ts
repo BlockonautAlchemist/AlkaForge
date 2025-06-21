@@ -55,10 +55,54 @@ async function generateHandler(
     
     Content Type Guidelines:
     - For X posts: Keep it under 280 characters, concise, and engaging. Return ONLY the text content, no JSON formatting. Format according to the selected tone.
-    - For X threads: Create a series of connected posts with smooth transitions. IMPORTANT: Each part must be under 280 characters. The final part MUST include a strong call to action encouraging followers to engage by following for more content, liking, and reposting to share with their audience. Use proven X (Twitter) copywriting best practices for the CTA.
+    - For X threads: Create a comprehensive thread with the following EXACT structure:
+      
+      THREAD STRUCTURE (MUST FOLLOW THIS FORMAT):
+      1. HOOK TWEET (part1): Create an attention-grabbing opener that sparks curiosity or teases value
+      2. CONTEXT TWEET (part2): Add clarity after the hook by providing backstory, dropping a key insight early, or explaining why this thread matters. Examples:
+         - "I've spent the last 6 months testing this, and the results shocked me."
+         - "Here's what I learned after doing this daily — and why it might change how you approach it."
+         - "Let me explain how I stumbled onto this and what it can do for you."
+      3. BODY TWEETS (part3-part9): Generate 7 core content tweets that each:
+         - Share only ONE idea per tweet
+         - Can stand alone as shareable insights  
+         - Maintain consistent tone and format
+         - Build on previous tweets for cohesive narrative
+         - Follow patterns like: "Lesson 1: [statement]. Here's why it matters: [insight]." or "This mistake cost me months. Here's what I'd do differently now."
+      4. CTA TWEET (final part): Strong call to action encouraging engagement
+      
+      IMPORTANT: Each tweet must be under 280 characters. Structure your JSON response with parts 1-10 (hook, context, 7 body tweets, CTA).
+      
     - For replies: Keep it extremely concise - one short, impactful sentence. Maximum 50 characters. Be direct and to the point.
     - For Discord announcements: Use markdown formatting appropriately.
-    - For 3-sentence hooks: You are a top-tier social media copywriter. Your task is to write a compelling 3-sentence hook that grabs attention and introduces the content that follows. The tone should match the selected tone. Avoid fluff. Focus on sparking curiosity, teasing value, or hinting at a surprising insight. Maximum 200 characters total.
+    - For 3-sentence hooks: 
+      
+      CRITICAL REQUIREMENTS FOR 3-SENTENCE HOOKS:
+      
+      1. MUST generate EXACTLY 3 sentences - no more, no less
+      2. MUST be directly related to the specific content the user provided
+      3. MUST follow this exact structure:
+         - Sentence 1: Challenge a common assumption or present a surprising fact
+         - Sentence 2: Reveal the truth or explain why this matters
+         - Sentence 3: Tease the value or solution that follows
+      4. MUST match the selected tone (${tone})
+      5. MUST spark curiosity about the user's specific content
+      
+      STRUCTURE TEMPLATE:
+      "[Challenge/Surprising fact about user's topic]. [Truth/Why it matters]. [Tease the value from user's content]."
+      
+      EXAMPLES BY TOPIC:
+      
+      Marketing: "Most brands think they're telling a story. But what they're really doing is listing features. Here's how to shift your messaging from boring to unforgettable."
+      
+      Fitness: "You don't need 2 hours a day in the gym to get strong. You just need a smarter system. This one works even when motivation runs out."
+      
+      Finance: "Most people don't get rich by saving. They do it by understanding leverage. Let me show you how that actually works."
+      
+      Gaming/Tech: "Most gaming projects fail because they focus on features instead of retention. The successful ones solve onboarding first, then scale. Here's the exact 3-month strategy that's working."
+      
+      INSTRUCTIONS: 
+      Analyze the user's specific content and create a 3-sentence hook that introduces THEIR specific topic, strategy, or insights. Do not be generic - be specific to what they're sharing.
     
     REQUIRED REFERENCE EXAMPLES - Use these patterns for ALL content:
     
@@ -107,17 +151,22 @@ async function generateHandler(
     Format Rules:
     1. For X threads, you MUST format your response as a valid, parseable JSON object with this exact structure:
        {
-         "part1": "first part text here",
-         "part2": "second part text here",
-         "part3": "third part text here",
-         "part4": "fourth part text here",
-         "part5": "fifth part text here with a STRONG call to action for engagement"
+         "part1": "hook tweet - attention-grabbing opener",
+         "part2": "context tweet - adds clarity and backstory after the hook",
+         "part3": "body tweet 1 - first core idea",
+         "part4": "body tweet 2 - second core idea", 
+         "part5": "body tweet 3 - third core idea",
+         "part6": "body tweet 4 - fourth core idea",
+         "part7": "body tweet 5 - fifth core idea",
+         "part8": "body tweet 6 - sixth core idea",
+         "part9": "body tweet 7 - seventh core idea",
+         "part10": "CTA tweet - strong call to action for engagement, following, and sharing"
        }
        Do NOT add any text before or after the JSON. The response should be ONLY the JSON object.
+       Generate 10 total parts
     2. For other content types, provide direct text output
     3. Never use hashtags
-    4. Keep language simple and clear
-    5. ALWAYS use one of the patterns above as your primary structure`;
+    4. Keep language simple and clear`;
 
     if (knowledgeContent) {
       systemPrompt += `\n\nUse the following knowledge content for context:\n${knowledgeContent}`;
