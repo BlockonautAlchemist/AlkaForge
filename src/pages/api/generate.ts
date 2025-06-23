@@ -200,7 +200,7 @@ async function generateHandler(
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: 'anthropic/claude-3-7-sonnet',
+        model: 'openai/chatgpt-4o-latest',
         messages: messages,
         max_tokens: maxTokens,
         temperature: 0.7,
