@@ -26,7 +26,7 @@ type KnowledgeFile = {
   size: number;
 };
 
-type ContentType = 'post' | 'thread' | 'reply' | 'discord' | 'hook';
+type ContentType = 'post' | 'thread' | 'reply' | 'discord' | 'hook' | 'summary-cta';
 
 // Define the generator config locally since we can't import it
 const generatorConfig = {
@@ -35,7 +35,8 @@ const generatorConfig = {
     thread: 2000,
     reply: 1000,
     discord: 1000,
-    hook: 1000
+    hook: 1000,
+    'summary-cta': 1000
   }
 };
 
@@ -389,6 +390,7 @@ export default function ContentGenerator() {
                         <option value="reply">X Reply</option>
                         <option value="discord">Discord Announcement</option>
                         <option value="hook">3-Sentence Hook</option>
+                        <option value="summary-cta">Concise Summary w/ CTA</option>
                       </select>
                     </div>
 
@@ -487,6 +489,7 @@ export default function ContentGenerator() {
                     {contentType === 'reply' && 'X Reply'}
                     {contentType === 'discord' && 'Discord Announcement'}
                     {contentType === 'hook' && '3-Sentence Hook'}
+                    {contentType === 'summary-cta' && 'Concise Summary w/ CTA'}
                   </h2>
                   {generatedContent && (
                     <button

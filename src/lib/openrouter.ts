@@ -35,7 +35,7 @@ type OpenRouterResponse = {
 
 type ContentGenerationParams = {
   prompt: string;
-  contentType: 'post' | 'thread' | 'reply' | 'discord' | 'hook';
+  contentType: 'post' | 'thread' | 'reply' | 'discord' | 'hook' | 'summary-cta';
   tone?: 'informative' | 'viral' | 'funny' | 'casual';
   maxTokens?: number;
   knowledgeContent?: string;
@@ -253,6 +253,52 @@ export async function generateContent({
     } else if (contentType === 'discord') {
       // Keep Discord markdown formatting intact
       content = content.trim();
+    } else if (contentType === 'summary-cta') {
+      // For summary with CTA, ensure clean formatting and 280 character limit
+      content = content.trim();
+      
+      // Clean up the content
+      content = content
+        .replace(/^["']|["']$/g, '') // Remove surrounding quotes
+        .replace(/\\n/g, ' ') // Replace newlines with spaces
+        .replace(/\s+/g, ' ') // Normalize whitespace
+        .trim();
+      
+      // Enforce 280 character limit
+      if (content.length > 280) {
+        // Find the last complete sentence that fits within the limit
+        const sentences = content.match(/[^.!?]+[.!?]+/g) || [content];
+        content = '';
+        let currentLength = 0;
+        
+        for (const sentence of sentences) {
+          const trimmedSentence = sentence.trim();
+          if (currentLength + trimmedSentence.length + (currentLength > 0 ? 1 : 0) <= 280) {
+            content += (currentLength > 0 ? ' ' : '') + trimmedSentence;
+            currentLength += trimmedSentence.length + (currentLength > 0 ? 1 : 0);
+          } else {
+            break;
+          }
+        }
+        
+        content = content.trim();
+        
+        // If we still don't have any complete sentences that fit, add as many full words as possible
+        if (!content) {
+          const words = (response.data.content || '').trim().split(/\s+/);
+          content = '';
+          currentLength = 0;
+          for (const word of words) {
+            if (currentLength + word.length + (currentLength > 0 ? 1 : 0) <= 280) {
+              content += (currentLength > 0 ? ' ' : '') + word;
+              currentLength += word.length + (currentLength > 0 ? 1 : 0);
+            } else {
+              break;
+            }
+          }
+          content = content.trim();
+        }
+      }
     } else if (contentType === 'hook') {
       // For 3-sentence hooks, ensure clean formatting and appropriate length
       content = content.trim();
@@ -298,7 +344,7 @@ export async function generateContent({
         content = content.trim();
       }
     } else {
-      // For posts and replies, ensure clean formatting
+      // For posts, replies, and summary-cta, ensure clean formatting
       content = content.trim();
     }
     

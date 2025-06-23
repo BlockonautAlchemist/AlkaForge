@@ -13,7 +13,7 @@ type ResponseData = {
 
 type RequestData = {
   prompt: string;
-  contentType: 'post' | 'thread' | 'reply' | 'discord' | 'hook';
+  contentType: 'post' | 'thread' | 'reply' | 'discord' | 'hook' | 'summary-cta';
   tone: 'informative' | 'viral' | 'funny' | 'casual';
   maxTokens?: number;
   knowledgeContent?: string;
@@ -75,6 +75,15 @@ async function generateHandler(
       
     - For replies: Keep it extremely concise - one short, impactful sentence. Maximum 50 characters. Be direct and to the point.
     - For Discord announcements: Use markdown formatting appropriately.
+    - For Concise Summary and CTA: 
+      
+      CRITICAL REQUIREMENTS FOR CONCISE SUMMARY WITH CTA:
+      
+      1. MUST include BOTH a summary AND a call to action - this is non-negotiable
+      2. MUST be 280 characters or less total
+      3. NO hashtags or emojis allowed
+      4. MUST follow this exact structure: "[Brief summary of key points]. [Clear call to action that encourages engagement]."
+      
     - For 3-sentence hooks: 
       
       CRITICAL REQUIREMENTS FOR 3-SENTENCE HOOKS:
