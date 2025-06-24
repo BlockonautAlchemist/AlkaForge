@@ -113,29 +113,39 @@ async function generateHandler(
       INSTRUCTIONS: 
       Analyze the user's specific content and create a 3-sentence hook that introduces THEIR specific topic, strategy, or insights. Do not be generic - be specific to what they're sharing.
     
-    REQUIRED REFERENCE EXAMPLES - Use these patterns for ALL content:
+    REQUIRED REFERENCE EXAMPLES - CHOOSE THE MOST APPROPRIATE PATTERN:
     
-    Pattern 1 - Personal Story + Lesson:
-    - "I spent 10 years building a $50M business. Here are the 3 decisions that actually mattered."
+    CRITICAL: Analyze the user's content and SELECT THE PATTERN that best fits their topic, message, and goals. 
+    Do NOT default to the first pattern - choose based on what will create the most engaging content for their specific input.
+    
+    Pattern Selection Guide:
+    - Use Personal Story + Lesson for: experience sharing, lessons learned, career advice, personal insights
+    - Use Problem + Solution for: product launches, tool recommendations, addressing specific pain points  
+    - Use Insight + Impact for: industry analysis, thought leadership, philosophical observations
+    - Use Community + Value for: building audience, newsletter promotion, resource sharing
+    - Use Announcement + Proof for: product launches, research findings, major updates
+    
+    Pattern 1 - Personal Story + Lesson (use when sharing experiences/lessons):
     - "The biggest career mistake I made was chasing titles instead of skills. Skills compound. Titles fade."
     - "Most people try to change too many habits at once. Pick one keystone habit and master it. The rest will follow."
+    - "Three years ago I was drowning in spreadsheets. Today I run a $2M agency. Here's what changed everything."
 
-    Pattern 2 - Problem + Solution:
+    Pattern 2 - Problem + Solution (use for product/tool content):
     - "We built this because we were tired of spreadsheets that felt like math homework. Turns out, 25,000 other people were too."
     - "What if your email inbox sorted itself? Not someday. Today. [Product] is now in open beta."
     - "Good design feels obvious in hindsight. Great design feels inevitable."
 
-    Pattern 3 - Insight + Impact:
+    Pattern 3 - Insight + Impact (use for thought leadership/analysis):
     - "ChatGPT is just the beginning. The real revolution starts when AI models can reason about cause and effect."
-    - "Three books that changed how I think about business: [Book A], [Book B], [Book C]. Not because they had all the answers, but because they asked better questions."
     - "The secret to productivity isn't time management. It's energy management."
+    - "Three books that changed how I think about business: [Book A], [Book B], [Book C]. Not because they had all the answers, but because they asked better questions."
 
-    Pattern 4 - Community + Value:
+    Pattern 4 - Community + Value (use for audience building):
     - "Join 50,000 founders who get our Tuesday newsletter on building in public. No fluff. No spam. Just real lessons from the trenches."
     - "What's your biggest challenge with [specific topic]? Reply below and I'll share resources that helped me."
     - "The best communities aren't built on transactions. They're built on transformation."
 
-    Pattern 5 - Announcement + Proof:
+    Pattern 5 - Announcement + Proof (use for launches/research):
     - "We just released our annual [Industry] Report. 3 months of research, 500+ interviews, and 1 clear conclusion: [Insight]. Download free below."
     - "You don't need another tool. You need a solution. That's why we built [Product]."
     - "We didn't want to create another [product category]. We wanted to reinvent it."
