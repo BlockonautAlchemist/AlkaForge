@@ -65,6 +65,9 @@ export default function ContentGenerator() {
   const [tone, setTone] = useState<ToneType>('informative');
   const [prompt, setPrompt] = useState('');
   const [customPrompt, setCustomPrompt] = useState('');
+  const [sourceUrl, setSourceUrl] = useState('');
+  const [urlContent, setUrlContent] = useState('');
+  const [urlLoading, setUrlLoading] = useState(false);
   const [generatedContent, setGeneratedContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [projectLoading, setProjectLoading] = useState(true);
@@ -116,6 +119,71 @@ export default function ContentGenerator() {
       toast.error('Failed to fetch projects.');
     } finally {
       setProjectLoading(false);
+    }
+  };
+
+  const extractUrlContent = async () => {
+    if (!sourceUrl.trim()) {
+      toast.error('Please enter a URL.');
+      return;
+    }
+
+    // Basic URL validation
+    try {
+      new URL(sourceUrl);
+    } catch {
+      toast.error('Please enter a valid URL.');
+      return;
+    }
+
+    setUrlLoading(true);
+    try {
+      const response = await fetch('/api/extract-url', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: sourceUrl }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        // Show more specific error message from API
+        throw new Error(data.error || 'Failed to extract URL content');
+      }
+
+      setUrlContent(data.content);
+      
+      // Show more detailed success message
+      const contentType = sourceUrl.includes('youtube.com') || sourceUrl.includes('youtu.be') ? 'video' : 'article';
+      let message = `${contentType === 'video' ? 'Video' : 'Article'} content extracted successfully!`;
+      
+      if (data.truncated) {
+        message += ` (${Math.round(data.originalLength / 1000)}k chars, truncated to 100k)`;
+      } else {
+        message += ` (${Math.round(data.originalLength / 1000)}k characters)`;
+      }
+      
+      toast.success(message);
+    } catch (error) {
+      console.error('Error extracting URL content:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to extract content from URL';
+      
+      // Provide helpful suggestions based on error type
+      if (errorMessage.includes('forbidden') || errorMessage.includes('blocking')) {
+        toast.error('This website is blocking automated requests. Try copying and pasting the content manually, or use a different URL.');
+      } else if (errorMessage.includes('not found')) {
+        toast.error('Page not found. Please check the URL and try again.');
+      } else if (errorMessage.includes('rate limited')) {
+        toast.error('Too many requests. Please wait a moment and try again.');
+      } else if (errorMessage.includes('private') || errorMessage.includes('restricted')) {
+        toast.error('This content appears to be private or restricted. Try a public URL instead.');
+      } else {
+        toast.error(`Failed to extract content: ${errorMessage}`);
+      }
+    } finally {
+      setUrlLoading(false);
     }
   };
 
@@ -200,10 +268,16 @@ export default function ContentGenerator() {
       console.log("Calling OpenRouter API to generate content");
       
       // When generating the thread, prepend the selected hook if present
-      const threadPrompt = contentType === 'thread' && selectedHook ? `${selectedHook}\n\n${prompt}` : prompt;
+      let finalPrompt = contentType === 'thread' && selectedHook ? `${selectedHook}\n\n${prompt}` : prompt;
+      
+      // Add URL content to the prompt if available
+      if (urlContent.trim()) {
+        finalPrompt = `Based on this source content:\n\n${urlContent}\n\n---\n\n${finalPrompt}`;
+      }
+      
       // Generate content using Claude with knowledge context
       const content = await generateContent({
-        prompt: threadPrompt,
+        prompt: finalPrompt,
         contentType,
         tone,
         maxTokens: contentType === 'thread' ? 2000 : 1000,
@@ -278,7 +352,13 @@ export default function ContentGenerator() {
           knowledgeContent = '';
         }
       }
-      const threadPrompt = `${hook}\n\n${prompt}`;
+      let threadPrompt = `${hook}\n\n${prompt}`;
+      
+      // Add URL content to the prompt if available
+      if (urlContent.trim()) {
+        threadPrompt = `Based on this source content:\n\n${urlContent}\n\n---\n\n${threadPrompt}`;
+      }
+      
       const content = await generateContent({
         prompt: threadPrompt,
         contentType,
@@ -438,6 +518,72 @@ export default function ContentGenerator() {
                       className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       placeholder="Enter your content ideas or raw text here..."
                     />
+                  </div>
+
+                  <div>
+                    <label htmlFor="sourceUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Reference URL (Optional)
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        id="sourceUrl"
+                        type="url"
+                        value={sourceUrl}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSourceUrl(e.target.value)}
+                        className="flex-1 px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        placeholder="Paste a YouTube video, article, or webpage URL..."
+                      />
+                      <button
+                        onClick={extractUrlContent}
+                        disabled={urlLoading || !sourceUrl.trim()}
+                        className={`px-4 py-2 rounded-md text-white font-medium whitespace-nowrap ${
+                          urlLoading || !sourceUrl.trim()
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-secondary-600 hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2'
+                        }`}
+                      >
+                        {urlLoading ? 'Extracting...' : 'Extract'}
+                      </button>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Works best with: YouTube videos, blog posts, news articles. Some sites may block automated access.
+                    </p>
+                    {urlContent && (
+                      <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
+                              {sourceUrl.includes('youtube.com') || sourceUrl.includes('youtu.be') ? 
+                                'Video content extracted!' : 'Article content extracted!'}
+                            </p>
+                            <p className="text-xs text-green-600 dark:text-green-300">
+                              {Math.round(urlContent.length / 1000)}k characters extracted
+                              {urlContent.includes('Full Transcript:') ? ' (includes full transcript)' : 
+                               urlContent.includes('[Note: Full transcript not available') ? ' (description + metadata only)' : 
+                               ' (full article content)'}
+                              . This will be used as reference for generation.
+                            </p>
+                          </div>
+                          <button
+                            onClick={() => {
+                              setUrlContent('');
+                              setSourceUrl('');
+                            }}
+                            className="text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200 ml-2"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                        <details className="mt-2">
+                          <summary className="text-xs text-green-600 dark:text-green-300 cursor-pointer hover:text-green-800 dark:hover:text-green-200">
+                            Preview extracted content
+                          </summary>
+                          <div className="mt-2 p-2 bg-white dark:bg-dark-200 rounded text-xs text-gray-600 dark:text-gray-300 max-h-48 overflow-y-auto whitespace-pre-wrap">
+                            {urlContent.substring(0, 1000)}{urlContent.length > 1000 ? '...' : ''}
+                          </div>
+                        </details>
+                      </div>
+                    )}
                   </div>
 
                   <div>
