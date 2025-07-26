@@ -493,7 +493,12 @@ export default function ContentGenerator() {
                       <div className="flex gap-6">
                         <div className="flex items-center">
                           <button
-                            onClick={() => setContentInputMethod('manual')}
+                            onClick={() => {
+                              setContentInputMethod('manual');
+                              // Clear URL content when switching to manual
+                              setUrlContent('');
+                              setSourceUrl('');
+                            }}
                             className={`px-4 py-2 rounded-l-md font-medium text-sm focus:outline-none ${
                               contentInputMethod === 'manual' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700 dark:bg-dark-300 dark:text-gray-300'
                             }`}
@@ -501,7 +506,11 @@ export default function ContentGenerator() {
                             Enter content manually
                           </button>
                           <button
-                            onClick={() => setContentInputMethod('url')}
+                            onClick={() => {
+                              setContentInputMethod('url');
+                              // Clear manual prompt when switching to URL
+                              setPrompt('');
+                            }}
                             className={`px-4 py-2 rounded-r-md font-medium text-sm focus:outline-none ${
                               contentInputMethod === 'url' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700 dark:bg-dark-300 dark:text-gray-300'
                             }`}
@@ -549,14 +558,14 @@ export default function ContentGenerator() {
                               className={`px-4 py-2 rounded-md text-white font-medium whitespace-nowrap ${
                                 urlLoading || !sourceUrl.trim()
                                   ? 'bg-gray-400 cursor-not-allowed'
-                                  : 'bg-secondary-600 hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2'
+                                  : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                               }`}
                             >
                               {urlLoading ? 'Extracting...' : 'Extract'}
                             </button>
                           </div>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Works best with: YouTube videos, blog posts, news articles. Some sites may block automated access.
+                            Works best with: YouTube videos, blog posts, news articles. Some sites may block automated access. Make sure to click the extract button after pasting the URL.
                           </p>
                           {urlContent && (
                             <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
@@ -784,7 +793,12 @@ export default function ContentGenerator() {
                       <div className="flex gap-6">
                         <div className="flex items-center">
                           <button
-                            onClick={() => setContentInputMethod('manual')}
+                            onClick={() => {
+                              setContentInputMethod('manual');
+                              // Clear URL content when switching to manual
+                              setUrlContent('');
+                              setSourceUrl('');
+                            }}
                             className={`px-4 py-2 rounded-l-md font-medium text-sm focus:outline-none ${
                               contentInputMethod === 'manual' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700 dark:bg-dark-300 dark:text-gray-300'
                             }`}
@@ -792,7 +806,11 @@ export default function ContentGenerator() {
                             Enter content manually
                           </button>
                           <button
-                            onClick={() => setContentInputMethod('url')}
+                            onClick={() => {
+                              setContentInputMethod('url');
+                              // Clear manual prompt when switching to URL
+                              setPrompt('');
+                            }}
                             className={`px-4 py-2 rounded-r-md font-medium text-sm focus:outline-none ${
                               contentInputMethod === 'url' ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-700 dark:bg-dark-300 dark:text-gray-300'
                             }`}
@@ -840,7 +858,7 @@ export default function ContentGenerator() {
                               className={`px-4 py-2 rounded-md text-white font-medium whitespace-nowrap ${
                                 urlLoading || !sourceUrl.trim()
                                   ? 'bg-gray-400 cursor-not-allowed'
-                                  : 'bg-secondary-600 hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-secondary-500 focus:ring-offset-2'
+                                  : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'
                               }`}
                             >
                               {urlLoading ? 'Extracting...' : 'Extract'}
