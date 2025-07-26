@@ -523,7 +523,7 @@ export default function ContentGenerator() {
                             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
                             rows={8}
                             className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            placeholder="Enter your content ideas, raw text, or describe what you want to create..."
+                            placeholder="Enter your content ideas, raw text, or describe what you want to create... e.g., 'Coca Cola's new marketing strategy is....'"
                           />
                         </div>
                       )}
@@ -609,7 +609,7 @@ export default function ContentGenerator() {
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCustomPrompt(e.target.value)}
                       rows={4}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="Add any specific instructions or requirements for the content generation..."
+                      placeholder="Add any specific instructions or requirements for the content generation... e.g., 'Focus on Coca Cola's sustainability efforts'"
                     />
                   </div>
 
@@ -814,7 +814,7 @@ export default function ContentGenerator() {
                             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setPrompt(e.target.value)}
                             rows={8}
                             className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                            placeholder="Enter your content ideas, raw text, or describe what you want to create..."
+                            placeholder="Enter your content ideas, raw text, or describe what you want to create... e.g., 'Coca Cola's new marketing strategy'"
                           />
                         </div>
                       )}
@@ -900,7 +900,7 @@ export default function ContentGenerator() {
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setCustomPrompt(e.target.value)}
                       rows={4}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                      placeholder="Add any specific instructions or requirements for the content generation..."
+                      placeholder="Add any specific instructions or requirements for the content generation... e.g., 'Focus on Coca Cola's sustainability efforts'"
                     />
                   </div>
 
