@@ -343,23 +343,23 @@ export default function Dashboard() {
             onClick={() => setShowNewProject(!showNewProject)}
             className="flex items-center px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
           >
-            <span className="mr-2"><FiPlus size={20} /></span> New Topic
+            <span className="mr-2"><FiPlus size={20} /></span> New Folder
           </button>
         </div>
 
         {showNewProject && (
           <div className="bg-white dark:bg-dark-100 rounded-lg shadow-md p-6 mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Create New Topic</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Create New Folder</h2>
             {createError && (
               <div className="bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 p-4 rounded-md mb-4">
-                <p className="font-medium">Error creating topic:</p>
+                <p className="font-medium">Error creating folder:</p>
                 <p>{createError}</p>
               </div>
             )}
             <div className="space-y-4">
               <div>
                 <label htmlFor="projectName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Topic Name*
+                  Folder Name*
                 </label>
                 <input
                   id="projectName"
@@ -367,9 +367,12 @@ export default function Dashboard() {
                   value={newProjectName}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewProjectName(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="My Topic"
+                  placeholder="e.g., Coca Cola Marketing"
                   required
                 />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Choose a descriptive name for your content folder (e.g., "Coca Cola Marketing", "Product Launches", "Social Media Campaigns")
+                </p>
               </div>
               <div>
                 <label htmlFor="projectDescription" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -381,8 +384,11 @@ export default function Dashboard() {
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNewProjectDescription(e.target.value)}
                   rows={3}
                   className="w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="Describe your topic"
+                  placeholder="e.g., Content for Coca Cola's social media campaigns, product launches, and brand messaging. Includes marketing materials, press releases, and promotional content."
                 />
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                  Describe what type of content you'll be creating in this folder (e.g., marketing campaigns, product information, brand guidelines)
+                </p>
               </div>
               <div>
                 <label htmlFor="knowledgeFiles" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -481,7 +487,7 @@ export default function Dashboard() {
                       Creating...
                     </>
                   ) : (
-                    <>Create Topic</>
+                    <>Create Folder</>
                   )}
                 </button>
               </div>
@@ -489,9 +495,9 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* User Topics Section */}
+        {/* User Folders Section */}
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Your Topics</h2>
+          <h2 className="text-2xl font-semibold text-gray-900 dark:text-white mb-6">Your Folders</h2>
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
@@ -501,15 +507,15 @@ export default function Dashboard() {
               <div className="mx-auto h-16 w-16 text-gray-400 dark:text-gray-600 mb-4">
                 <FiFolder size={20} />
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No topics found</h3>
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No folders found</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Create your first topic to start organizing your content.
+                Create your first folder to start organizing your content.
               </p>
               <button
                 onClick={() => setShowNewProject(true)}
                 className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
               >
-                Create Your First Topic
+                Create Your First Folder
               </button>
             </div>
           ) : (
@@ -538,7 +544,7 @@ export default function Dashboard() {
                           className="flex-1 flex items-center justify-center px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-dark-200 dark:hover:bg-dark-300 text-gray-700 dark:text-gray-300 rounded-md shadow-sm transition duration-300"
                         >
                           <span className="mr-2"><FiEdit size={20} /></span>
-                          Edit Topic
+                          Edit Folder
                         </button>
                         <button
                           onClick={() => deleteProject(project.id)}

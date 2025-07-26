@@ -438,7 +438,7 @@ export default function ContentGenerator() {
                 <div className="space-y-6">
                   <div>
                     <label htmlFor="project" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Topic
+                      Folder
                     </label>
                     <select
                       id="project"
