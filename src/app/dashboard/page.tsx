@@ -509,14 +509,24 @@ export default function Dashboard() {
               </div>
               <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">No folders found</h3>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Create your first folder to start organizing your content.
+                You can start generating content immediately, or create folders to organize your content and add knowledge files for enhanced context.
               </p>
-              <button
-                onClick={() => setShowNewProject(true)}
-                className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300"
-              >
-                Create Your First Folder
-              </button>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button
+                  onClick={() => router.push('/generator')}
+                  className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-md shadow-sm transition duration-300 flex items-center justify-center"
+                >
+                  <span className="mr-2"><FiFile size={20} /></span>
+                  Start Generating Content
+                </button>
+                <button
+                  onClick={() => setShowNewProject(true)}
+                  className="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-dark-200 dark:hover:bg-dark-300 text-gray-700 dark:text-gray-300 rounded-md shadow-sm transition duration-300 flex items-center justify-center"
+                >
+                  <span className="mr-2"><FiFolder size={20} /></span>
+                  Create Your First Folder
+                </button>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -4,11 +4,10 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { useAuth } from '@/context/AuthContext';
-import { Mail as FiMail, Lock as FiLock, User as FiUser, AlertCircle as FiAlertCircle, Check as FiCheck } from 'lucide-react';
+import { Mail as FiMail, Lock as FiLock, AlertCircle as FiAlertCircle, Check as FiCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Signup() {
-  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -37,7 +36,7 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const { user, session } = await signUp(email, password, fullName);
+      const { user, session } = await signUp(email, password);
       
       if (session) {
         // User is immediately logged in (email confirmation disabled)
@@ -121,26 +120,6 @@ export default function Signup() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Full Name
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <FiUser className="text-gray-400" />
-                </div>
-                <input
-                  id="fullName"
-                  type="text"
-                  required
-                  value={fullName}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFullName(e.target.value)}
-                  className="pl-10 w-full px-4 py-2 border border-gray-300 dark:border-dark-300 rounded-md bg-white dark:bg-dark-200 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                  placeholder="John Doe"
-                />
-              </div>
-            </div>
-
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Email Address
