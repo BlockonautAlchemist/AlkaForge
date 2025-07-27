@@ -254,8 +254,20 @@ export async function generateContent({
       // Keep Discord markdown formatting intact
       content = content.trim();
     } else if (contentType === 'summary-cta') {
-      // For summary with CTA, ensure clean formatting and 280 character limit
+      // For summary with CTA, ensure we're not getting JSON format
       content = content.trim();
+      
+      // If content is wrapped in JSON, extract just the text
+      if (content.startsWith('{') && content.includes('"part')) {
+        try {
+          const jsonContent = JSON.parse(content);
+          // If it's a summary-cta, just use part1 if it exists
+          content = jsonContent.part1 || content;
+        } catch (e) {
+          // If JSON parsing fails, just use the content as is
+          console.warn('Failed to parse JSON content for summary-cta:', e);
+        }
+      }
       
       // Clean up the content
       content = content
@@ -300,8 +312,20 @@ export async function generateContent({
         }
       }
     } else if (contentType === 'hook') {
-      // For 3-sentence hooks, ensure clean formatting and appropriate length
+      // For 3-sentence hooks, ensure we're not getting JSON format
       content = content.trim();
+      
+      // If content is wrapped in JSON, extract just the text
+      if (content.startsWith('{') && content.includes('"part')) {
+        try {
+          const jsonContent = JSON.parse(content);
+          // If it's a hook, just use part1 if it exists
+          content = jsonContent.part1 || content;
+        } catch (e) {
+          // If JSON parsing fails, just use the content as is
+          console.warn('Failed to parse JSON content for hook:', e);
+        }
+      }
       
       // Clean up the content
       content = content

@@ -67,7 +67,7 @@ export default async function handler(
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: 'anthropic/claude-3.7-sonnet',
+        model: 'google/gemini-2.5-flash',
         messages: messages,
         max_tokens: 600,
         temperature: 0.8,

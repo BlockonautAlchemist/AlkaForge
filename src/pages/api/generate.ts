@@ -55,6 +55,8 @@ async function generateHandler(
     
     Content Type Guidelines:
     - For X posts: Keep it under 280 characters, concise, and engaging. Return ONLY the text content, no JSON formatting. Format according to the selected tone.
+    - For 3-sentence hooks: Return ONLY the text content, no JSON formatting. Must be exactly 3 sentences.
+    - For Concise Summary and CTA: Return ONLY the text content, no JSON formatting. Must be 280 characters or less.
     - For X threads: Create a comprehensive thread with the following EXACT structure:
       
       THREAD STRUCTURE (MUST FOLLOW THIS FORMAT):
@@ -168,7 +170,7 @@ async function generateHandler(
     - "Follow for more [topic] breakdowns like this one. Your like and repost help more people see this thread!"
     
     Format Rules:
-    1. For X threads, you MUST format your response as a valid, parseable JSON object with this exact structure:
+    1. For X threads ONLY, you MUST format your response as a valid, parseable JSON object with this exact structure:
        {
          "part1": "hook tweet - attention-grabbing opener",
          "part2": "context tweet - adds clarity and backstory after the hook",
@@ -183,7 +185,7 @@ async function generateHandler(
        }
        Do NOT add any text before or after the JSON. The response should be ONLY the JSON object.
        Generate 10 total parts
-    2. For other content types, provide direct text output
+    2. For ALL OTHER content types (X posts, replies, Discord announcements, 3-sentence hooks, Concise Summary and CTA), provide direct text output with NO JSON formatting
     3. Never use hashtags
     4. Keep language simple and clear`;
 
@@ -210,7 +212,7 @@ async function generateHandler(
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: 'openai/chatgpt-4o-latest',
+        model: 'google/gemini-2.5-flash',
         messages: messages,
         max_tokens: maxTokens,
         temperature: 0.7,
