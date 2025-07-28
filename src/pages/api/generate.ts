@@ -212,7 +212,7 @@ async function generateHandler(
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: 'moonshotai/kimi-k2:free',
+        model: 'moonshotai/kimi-k2',
         messages: messages,
         max_tokens: maxTokens,
         temperature: 0.6,
