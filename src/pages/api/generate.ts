@@ -215,7 +215,7 @@ async function generateHandler(
         model: 'moonshotai/kimi-k2:free',
         messages: messages,
         max_tokens: maxTokens,
-        temperature: 0.7,
+        temperature: 0.6,
         top_p: 1
       },
       {
