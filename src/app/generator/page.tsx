@@ -158,7 +158,11 @@ export default function ContentGenerator() {
       
       // Show more detailed success message
       const contentType = sourceUrl.includes('youtube.com') || sourceUrl.includes('youtu.be') ? 'video' : 'article';
-      let message = `${contentType === 'video' ? 'Video' : 'Article'} content extracted successfully!`;
+      let message = `Content extracted successfully!`;
+      
+      if (data.extractionMethod === 'fallback') {
+        message += ' (used fallback method)';
+      }
       
       if (data.truncated) {
         message += ` (${Math.round(data.originalLength / 1000)}k chars, truncated to 100k)`;
@@ -180,6 +184,14 @@ export default function ContentGenerator() {
         toast.error('Too many requests. Please wait a moment and try again.');
       } else if (errorMessage.includes('private') || errorMessage.includes('restricted')) {
         toast.error('This content appears to be private or restricted. Try a public URL instead.');
+      } else if (errorMessage.includes('JavaScript') || errorMessage.includes('dynamic')) {
+        toast.error('This page requires JavaScript or has dynamic content. Try copying the content manually or use a different URL.');
+      } else if (errorMessage.includes('paywall')) {
+        toast.error('This content appears to be behind a paywall. Try a publicly accessible URL instead.');
+      } else if (errorMessage.includes('timeout')) {
+        toast.error('Request timed out. The website may be slow or unavailable. Please try again.');
+      } else if (errorMessage.includes('network')) {
+        toast.error('Network error. Please check your internet connection and try again.');
       } else {
         toast.error(`Failed to extract content: ${errorMessage}`);
       }
@@ -565,21 +577,21 @@ export default function ContentGenerator() {
                             </button>
                           </div>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Works best with: YouTube videos, blog posts, news articles. Some sites may block automated access. Make sure to click the extract button after pasting the URL.
+                            Works best with: YouTube videos, blog posts, news articles. Some sites may block automated access or require JavaScript. If extraction fails, try copying the content manually or use a different URL.
                           </p>
                           {urlContent && (
                             <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
                               <div className="flex justify-between items-start">
                                 <div className="flex-1">
                                   <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
-                                    {sourceUrl.includes('youtube.com') || sourceUrl.includes('youtu.be') ? 
-                                      'Video content extracted!' : 'Article content extracted!'}
+                                    Content extracted successfully!
                                   </p>
                                   <p className="text-xs text-green-600 dark:text-green-300">
                                     {Math.round(urlContent.length / 1000)}k characters extracted
                                     {urlContent.includes('Full Transcript:') ? ' (includes full transcript)' : 
                                      urlContent.includes('[Note: Full transcript not available') ? ' (description + metadata only)' : 
-                                     ' (full article content)'}
+                                     urlContent.includes('Content could not be extracted') ? ' (limited content available)' :
+                                     ' (full content)'}
                                     . Ready to generate content!
                                   </p>
                                 </div>
@@ -865,21 +877,21 @@ export default function ContentGenerator() {
                             </button>
                           </div>
                           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                            Works best with: YouTube videos, blog posts, news articles. Some sites may block automated access.
+                            Works best with: YouTube videos, blog posts, news articles. Some sites may block automated access or require JavaScript. If extraction fails, try copying the content manually or use a different URL.
                           </p>
                           {urlContent && (
                             <div className="mt-2 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
                               <div className="flex justify-between items-start">
                                 <div className="flex-1">
                                   <p className="text-sm font-medium text-green-800 dark:text-green-200 mb-1">
-                                    {sourceUrl.includes('youtube.com') || sourceUrl.includes('youtu.be') ? 
-                                      'Video content extracted!' : 'Article content extracted!'}
+                                    Content extracted successfully!
                                   </p>
                                   <p className="text-xs text-green-600 dark:text-green-300">
                                     {Math.round(urlContent.length / 1000)}k characters extracted
                                     {urlContent.includes('Full Transcript:') ? ' (includes full transcript)' : 
                                      urlContent.includes('[Note: Full transcript not available') ? ' (description + metadata only)' : 
-                                     ' (full article content)'}
+                                     urlContent.includes('Content could not be extracted') ? ' (limited content available)' :
+                                     ' (full content)'}
                                     . Ready to generate content!
                                   </p>
                                 </div>
