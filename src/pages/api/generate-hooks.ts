@@ -67,7 +67,7 @@ export default async function handler(
     const response = await axios.post(
       'https://openrouter.ai/api/v1/chat/completions',
       {
-        model: 'moonshotai/kimi-k2',
+        model: 'moonshotai/kimi-k2:free',
         messages: messages,
         max_tokens: 600,
         temperature: 0.6,
