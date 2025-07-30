@@ -37,4 +37,10 @@ export const FiCalendar = (props: any) => <span className={props.className}>📅
 export const FiBarChart2 = (props: any) => <span className={props.className}>📊</span>;
 export const FiArrowUp = (props: any) => <span className={props.className}>⬆️</span>;
 export const FiArrowDown = (props: any) => <span className={props.className}>⬇️</span>;
-export const FiMinus = (props: any) => <span className={props.className}>➖</span>; 
+export const FiMinus = (props: any) => <span className={props.className}>➖</span>;
+export const FiEye = (props: any) => <span className={props.className}>👁️</span>;
+export const FiKey = (props: any) => <span className={props.className}>🔑</span>;
+export const FiClock = (props: any) => <span className={props.className}>🕒</span>;
+export const FiActivity = (props: any) => <span className={props.className}>📊</span>;
+export const FiBook = (props: any) => <span className={props.className}>📖</span>;
+export const FiExternalLink = (props: any) => <span className={props.className}>🔗</span>; 

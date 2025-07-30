@@ -111,4 +111,63 @@ FROM user_subscriptions
 GROUP BY subscription_tier;
 
 -- Grant access to the analytics view for authenticated users
-GRANT SELECT ON subscription_analytics TO authenticated; 
+GRANT SELECT ON subscription_analytics TO authenticated;
+
+-- Create API keys table for developer access (Premium tier only)
+CREATE TABLE IF NOT EXISTS api_keys (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  key_name TEXT NOT NULL,
+  api_key_hash TEXT NOT NULL UNIQUE, -- Store hash of the API key for security
+  api_key_prefix TEXT NOT NULL, -- Store first 8 chars for identification (ak_12345678...)
+  monthly_usage INTEGER NOT NULL DEFAULT 0,
+  usage_reset_date TIMESTAMPTZ NOT NULL DEFAULT (date_trunc('month', NOW()) + INTERVAL '1 month'),
+  last_used_at TIMESTAMPTZ,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, key_name)
+);
+
+-- Function to increment API key usage
+CREATE OR REPLACE FUNCTION increment_api_key_usage(target_api_key_hash TEXT)
+RETURNS VOID AS $$
+BEGIN
+  UPDATE api_keys 
+  SET 
+    monthly_usage = monthly_usage + 1,
+    last_used_at = NOW(),
+    updated_at = NOW()
+  WHERE api_key_hash = target_api_key_hash AND is_active = true;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Function to reset API key monthly usage
+CREATE OR REPLACE FUNCTION reset_api_key_usage()
+RETURNS VOID AS $$
+BEGIN
+  UPDATE api_keys 
+  SET 
+    monthly_usage = 0,
+    usage_reset_date = date_trunc('month', NOW()) + INTERVAL '1 month',
+    updated_at = NOW()
+  WHERE usage_reset_date <= NOW() AND is_active = true;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Add API keys indexes
+CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON api_keys(user_id);
+CREATE INDEX IF NOT EXISTS idx_api_keys_hash ON api_keys(api_key_hash);
+CREATE INDEX IF NOT EXISTS idx_api_keys_active ON api_keys(is_active);
+
+-- Enable RLS on api_keys
+ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policy for api_keys
+CREATE POLICY "Users can manage their own API keys" ON api_keys
+  FOR ALL USING (auth.uid() = user_id);
+
+-- Grant permissions for API keys
+GRANT ALL ON api_keys TO authenticated;
+GRANT EXECUTE ON FUNCTION increment_api_key_usage(TEXT) TO anon, authenticated;
+GRANT EXECUTE ON FUNCTION reset_api_key_usage() TO postgres; 

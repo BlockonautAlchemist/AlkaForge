@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase';
 import { FiPlus, FiFolder, FiEdit, FiTrash, FiFile, FiLock, FiArrowUp } from '@/lib/react-icons-compat';
 import toast from 'react-hot-toast';
 import SubscriptionStatusCard from '@/components/subscription/SubscriptionStatusCard';
+import ApiKeyManagement from '@/components/developer/ApiKeyManagement';
 
 type Project = {
   id: string;
@@ -690,6 +691,13 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+
+        {/* Developer API Keys Section - Premium only */}
+        {subscription?.subscription_tier === 'PREMIUM' && (
+          <div className="mb-8">
+            <ApiKeyManagement />
+          </div>
+        )}
 
         {/* Plan Management Section - Subtle and unobtrusive */}
         {(subscription?.subscription_tier === 'STANDARD' || subscription?.subscription_tier === 'PREMIUM') && (
