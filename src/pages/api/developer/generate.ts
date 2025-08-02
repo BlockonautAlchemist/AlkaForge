@@ -20,7 +20,7 @@ type DeveloperApiRequest = {
 };
 
 type DeveloperApiResponse = {
-  content?: string;
+  content?: string | string[]; // Can be string or array for threads
   usage?: {
     monthly_usage: number;
     api_key_id: string;
@@ -237,7 +237,41 @@ export default async function handler(
       }
     );
 
-    const generatedContent = response.data.choices[0].message.content;
+    let generatedContent = response.data.choices[0].message.content;
+    
+    // Process thread content formatting
+    if (contentType === 'thread') {
+      try {
+        // Try to parse as JSON to see if it's a structured thread object
+        const parsedContent = JSON.parse(generatedContent);
+        
+        // Check if it's an object with part keys
+        if (typeof parsedContent === 'object' && parsedContent !== null) {
+          const partKeys = Object.keys(parsedContent).filter(key => key.startsWith('part'));
+          
+          if (partKeys.length > 0) {
+            // Sort parts by number (part1, part2, etc.)
+            const sortedParts = partKeys
+              .sort((a, b) => {
+                const numA = parseInt(a.replace('part', ''));
+                const numB = parseInt(b.replace('part', ''));
+                return numA - numB;
+              })
+              .map((partKey, index) => {
+                const content = parsedContent[partKey];
+                // Don't number the first tweet (part1), number the rest as "2/", "3/", etc.
+                return index === 0 ? content : `${index + 1}/ ${content}`;
+              });
+            
+            // Return as array for thread content
+            generatedContent = sortedParts;
+          }
+        }
+      } catch (parseError) {
+        // If parsing fails, keep the original content as string
+        console.log('Thread content is not JSON, keeping as string');
+      }
+    }
     
     // Increment API key usage
     try {
@@ -257,7 +291,7 @@ export default async function handler(
       }
     });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in developer API:', error);
     
     // Handle specific error types
