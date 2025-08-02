@@ -4,9 +4,17 @@ import { getApiKeyFromRequest, incrementApiKeyUsage, canMakeApiRequest, hashApiK
 
 // Request/Response types for developer API
 type DeveloperApiRequest = {
-  prompt: string;
-  contentType: 'post' | 'thread' | 'hook' | 'summary-cta' | 'reply' | 'discord';
+  // New structured format
+  input?: string;
+  referenceURL?: string;
+  customInstructions?: string;
   tone: 'informative' | 'viral' | 'funny' | 'casual';
+  contentType: 'post' | 'thread' | 'hook' | 'summary-cta' | 'reply' | 'discord';
+  
+  // Backward compatibility
+  prompt?: string;
+  
+  // Optional parameters
   maxTokens?: number;
   knowledgeContent?: string;
 };
@@ -71,11 +79,44 @@ export default async function handler(
     }
 
     // Validate request body
-    const { prompt, contentType, tone, maxTokens = 1000, knowledgeContent = '' } = req.body as DeveloperApiRequest;
+    const { 
+      input, 
+      referenceURL, 
+      customInstructions, 
+      prompt, 
+      contentType, 
+      tone, 
+      maxTokens = 1000, 
+      knowledgeContent = '' 
+    } = req.body as DeveloperApiRequest;
 
-    if (!prompt || !contentType || !tone) {
+    // Build final prompt - prioritize new structured format, fallback to legacy prompt
+    let finalPrompt: string;
+    
+    if (input) {
+      // New structured format
+      finalPrompt = input;
+      
+      if (referenceURL) {
+        finalPrompt += `\n\nReference: ${referenceURL}`;
+      }
+      
+      if (customInstructions) {
+        finalPrompt += `\n\nInstructions: ${customInstructions}`;
+      }
+    } else if (prompt) {
+      // Backward compatibility with legacy prompt format
+      finalPrompt = prompt;
+    } else {
       return res.status(400).json({ 
-        error: 'Missing required fields: prompt, contentType, and tone are required.',
+        error: 'Missing required fields: either "input" or "prompt" is required, along with contentType and tone.',
+        error_code: 'MISSING_REQUIRED_FIELDS'
+      });
+    }
+
+    if (!contentType || !tone) {
+      return res.status(400).json({ 
+        error: 'Missing required fields: contentType and tone are required.',
         error_code: 'MISSING_REQUIRED_FIELDS'
       });
     }
@@ -165,7 +206,7 @@ export default async function handler(
       },
       {
         role: 'user',
-        content: prompt
+        content: finalPrompt
       }
     ];
 
