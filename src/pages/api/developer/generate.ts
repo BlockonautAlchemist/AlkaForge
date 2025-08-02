@@ -242,34 +242,64 @@ export default async function handler(
     // Process thread content formatting
     if (contentType === 'thread') {
       try {
+        // Extract JSON from potential HTML/XML wrapper
+        let cleanJsonString = generatedContent;
+        
+        // Check if content is wrapped in HTML/XML tags and extract JSON
+        const htmlMatch = generatedContent.match(/<(?:html|body|div|p|pre|code)[^>]*>([\s\S]*?)<\/(?:html|body|div|p|pre|code)>/);
+        if (htmlMatch) {
+          cleanJsonString = htmlMatch[1].trim();
+        }
+        
+        // Also handle XML-style wrapping
+        const xmlMatch = cleanJsonString.match(/^<[^>]+>([\s\S]*?)<\/[^>]+>$/);
+        if (xmlMatch) {
+          cleanJsonString = xmlMatch[1].trim();
+        }
+        
         // Try to parse as JSON to see if it's a structured thread object
-        const parsedContent = JSON.parse(generatedContent);
+        const parsedContent = JSON.parse(cleanJsonString);
         
         // Check if it's an object with part keys
         if (typeof parsedContent === 'object' && parsedContent !== null) {
           const partKeys = Object.keys(parsedContent).filter(key => key.startsWith('part'));
           
           if (partKeys.length > 0) {
-            // Sort parts by number (part1, part2, etc.)
-            const sortedParts = partKeys
-              .sort((a, b) => {
-                const numA = parseInt(a.replace('part', ''));
-                const numB = parseInt(b.replace('part', ''));
-                return numA - numB;
-              })
-              .map((partKey, index) => {
-                const content = parsedContent[partKey];
-                // Don't number the first tweet (part1), number the rest as "2/", "3/", etc.
-                return index === 0 ? content : `${index + 1}/ ${content}`;
-              });
-            
-            // Return as array for thread content
-            generatedContent = sortedParts;
+            // For thread content, return the original JSON string (not processed array)
+            // This ensures the response format is: {"content": "{\"part1\": \"...\", \"part2\": \"...\"}", "usage": {...}}
+            generatedContent = JSON.stringify(parsedContent);
           }
         }
       } catch (parseError) {
-        // If parsing fails, keep the original content as string
-        console.log('Thread content is not JSON, keeping as string');
+        console.error('Failed to parse thread content as JSON:', parseError);
+        console.log('Raw content:', generatedContent);
+        
+        // If all parsing attempts fail, try to extract any JSON-like content
+        const jsonMatch = generatedContent.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            const extractedJson = JSON.parse(jsonMatch[0]);
+            if (typeof extractedJson === 'object' && extractedJson !== null) {
+              const partKeys = Object.keys(extractedJson).filter(key => key.startsWith('part'));
+              if (partKeys.length > 0) {
+                generatedContent = JSON.stringify(extractedJson);
+              }
+            }
+          } catch (secondParseError) {
+            console.error('Second parsing attempt failed:', secondParseError);
+            // Return error response for thread if we can't extract valid JSON
+            return res.status(500).json({ 
+              error: 'Failed to generate valid thread content. Please try again.',
+              error_code: 'THREAD_GENERATION_ERROR'
+            });
+          }
+        } else {
+          // No JSON found at all
+          return res.status(500).json({ 
+            error: 'Failed to generate valid thread content. Please try again.',
+            error_code: 'THREAD_GENERATION_ERROR'
+          });
+        }
       }
     }
     
