@@ -2,44 +2,24 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { getApiKeyFromRequest, incrementApiKeyUsage, canMakeApiRequest, hashApiKey } from '@/lib/apiKeys';
 
-/**
- * Formats content for ElizaOS with the required XML structure.
- * Wraps user-facing content in <actions><say>...</say></actions>
- * Wraps internal reasoning in <thinking><task>alkaforge</task>...</thinking>
- * Returns the full XML wrapped in <response>...</response>
- * 
- * Includes automatic fallbacks to prevent ElizaOS retries:
- * - Ensures <thinking> section is always present
- * - Ensures <task> tag is always present within <thinking>
- * - Handles empty or missing content gracefully
- */
 function formatForEliza(xmlContent: string, reasoning: string): string {
-  // Ensure we have content, provide fallback if empty
-  const safeXmlContent = xmlContent.trim() || 'Content generated successfully.';
-  let safeReasoning = reasoning.trim();
-  
-  // Provide fallback reasoning if empty
-  if (!safeReasoning) {
-    safeReasoning = 'User requested content generation. Processing request to provide appropriate response.';
-  }
-  
-  // Ensure reasoning has proper task tag if missing
-  if (!safeReasoning.includes('<task>')) {
-    safeReasoning = `<task>alkaforge</task>\n${safeReasoning}`;
-  }
-  
-  // Escape any XML special characters in the content to prevent malformed XML
-  const escapedContent = safeXmlContent
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
+  // Provide fallback reasoning if needed
+  const trimmedReasoning = reasoning.trim() || 'User requested content generation.';
+  const hasTaskTag = trimmedReasoning.includes('<task>');
+  const reasoningWithTask = hasTaskTag ? trimmedReasoning : `<task>alkaforge</task>\n${trimmedReasoning}`;
+
+  // Escape only `&`, not < or >. Do not wrap XML or HTML inside <say>.
+  const cleanText = xmlContent
+    .replace(/&/g, '&amp;')    // Escape ampersands
+    .replace(/</g, '&lt;')     // Also escape < and > to prevent injection
     .replace(/>/g, '&gt;');
-  
+
   return `<response>
   <thinking>
-    ${safeReasoning}
+    ${reasoningWithTask}
   </thinking>
   <actions>
-    <say>${escapedContent}</say>
+    <say>${cleanText}</say>
   </actions>
 </response>`;
 }
