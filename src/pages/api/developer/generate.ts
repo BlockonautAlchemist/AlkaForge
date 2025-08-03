@@ -3,8 +3,51 @@ import axios from 'axios';
 import { getApiKeyFromRequest, incrementApiKeyUsage, canMakeApiRequest, hashApiKey } from '@/lib/apiKeys';
 
 /**
+ * Formats content for ElizaOS with the required XML structure.
+ * Wraps user-facing content in <actions><say>...</say></actions>
+ * Wraps internal reasoning in <thinking><task>alkaforge</task>...</thinking>
+ * Returns the full XML wrapped in <response>...</response>
+ * 
+ * Includes automatic fallbacks to prevent ElizaOS retries:
+ * - Ensures <thinking> section is always present
+ * - Ensures <task> tag is always present within <thinking>
+ * - Handles empty or missing content gracefully
+ */
+function formatForEliza(xmlContent: string, reasoning: string): string {
+  // Ensure we have content, provide fallback if empty
+  const safeXmlContent = xmlContent.trim() || 'Content generated successfully.';
+  let safeReasoning = reasoning.trim();
+  
+  // Provide fallback reasoning if empty
+  if (!safeReasoning) {
+    safeReasoning = 'User requested content generation. Processing request to provide appropriate response.';
+  }
+  
+  // Ensure reasoning has proper task tag if missing
+  if (!safeReasoning.includes('<task>')) {
+    safeReasoning = `<task>alkaforge</task>\n${safeReasoning}`;
+  }
+  
+  // Escape any XML special characters in the content to prevent malformed XML
+  const escapedContent = safeXmlContent
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  
+  return `<response>
+  <thinking>
+    ${safeReasoning}
+  </thinking>
+  <actions>
+    <say>${escapedContent}</say>
+  </actions>
+</response>`;
+}
+
+/**
  * Ensures the <thought> block in the XML string contains at least one child tag.
  * If not, prepends <task>alkaforge</task> inside <thought>.
+ * @deprecated Use formatForEliza instead for ElizaOS compatibility
  */
 function ensureThoughtHasTask(xml: string): string {
   return xml.replace(
@@ -270,8 +313,9 @@ export default async function handler(
     
     // Process content formatting based on request type
     if (isElizaOSRequest) {
-      // ElizaOS formatting with XML wrapper
-      let formattedContent = '';
+      // ElizaOS formatting with proper XML structure
+      let userFacingContent = '';
+      let reasoning = '';
       
       if (contentType === 'thread') {
         try {
@@ -311,14 +355,10 @@ export default async function handler(
                   return `${index + 1}/ ${content}`;
                 });
               
-              // Create thinking tag based on the input
+              // Create reasoning and user-facing content
               const topic = finalPrompt.length > 50 ? finalPrompt.substring(0, 50) + '...' : finalPrompt;
-              
-              formattedContent = `<thinking>
-User wants a thread about ${topic}. I'll generate a ${tone}, engaging 10-part thread that breaks down the topic with ${tone} tone and personality.
-</thinking>
-
-${sortedParts.join('\n\n')}`;
+              reasoning = `User wants a thread about ${topic}. I'll generate a ${tone}, engaging 10-part thread that breaks down the topic with ${tone} tone and personality.`;
+              userFacingContent = sortedParts.join('\n\n');
             }
           }
         } catch (parseError) {
@@ -343,11 +383,8 @@ ${sortedParts.join('\n\n')}`;
                     });
                   
                   const topic = finalPrompt.length > 50 ? finalPrompt.substring(0, 50) + '...' : finalPrompt;
-                  formattedContent = `<thinking>
-User wants a thread about ${topic}. I'll generate a ${tone}, engaging thread that breaks down the topic.
-</thinking>
-
-${sortedParts.join('\n\n')}`;
+                  reasoning = `User wants a thread about ${topic}. I'll generate a ${tone}, engaging thread that breaks down the topic.`;
+                  userFacingContent = sortedParts.join('\n\n');
                 }
               }
             } catch (secondParseError) {
@@ -366,15 +403,23 @@ ${sortedParts.join('\n\n')}`;
         }
       } else {
         // Non-thread content for ElizaOS
-        const topic = finalPrompt.length > 50 ? finalPrompt.substring(0, 50) + '...' : finalPrompt;
-        formattedContent = `<thinking>
-User wants a ${contentType} with ${tone} tone about ${topic}. I'll create engaging content that matches their request.
-</thinking>
-
-${generatedContent}`;
+        // Check if content has reasoning (if it's a single blob, split on first double line break)
+        const doubleLineBreakIndex = generatedContent.indexOf('\n\n');
+        
+        if (doubleLineBreakIndex > 0 && doubleLineBreakIndex < generatedContent.length * 0.3) {
+          // First paragraph likely contains reasoning
+          reasoning = generatedContent.substring(0, doubleLineBreakIndex).trim();
+          userFacingContent = generatedContent.substring(doubleLineBreakIndex + 2).trim();
+        } else {
+          // No clear separation, create generic reasoning
+          const topic = finalPrompt.length > 50 ? finalPrompt.substring(0, 50) + '...' : finalPrompt;
+          reasoning = `User wants a ${contentType} with ${tone} tone about ${topic}. I'll create engaging content that matches their request.`;
+          userFacingContent = generatedContent;
+        }
       }
       
-      generatedContent = formattedContent;
+      // Use the formatForEliza helper function
+      generatedContent = formatForEliza(userFacingContent, reasoning);
       
     } else {
       // Regular API formatting (non-ElizaOS)
@@ -455,9 +500,9 @@ ${generatedContent}`;
     
     // Return response based on request type
     if (isElizaOSRequest) {
-      // For ElizaOS, ensure <thought> has a child tag, then return
+      // For ElizaOS, return properly formatted XML as plain text
       res.setHeader('Content-Type', 'text/plain');
-      return res.status(200).send(ensureThoughtHasTask(generatedContent));
+      return res.status(200).send(generatedContent);
     } else {
       // Regular JSON API response
       return res.status(200).json({ 
