@@ -17,6 +17,7 @@ type DeveloperApiRequest = {
   // Optional parameters
   maxTokens?: number;
   knowledgeContent?: string;
+  elizaFormat?: boolean;
 };
 
 type DeveloperApiResponse = {
@@ -124,10 +125,12 @@ export default async function handler(
     // Detect ElizaOS agent requests
     const userAgent = req.headers['user-agent'] || '';
     const elizaHeader = req.headers['x-elizaos'] || req.headers['X-ElizaOS'];
+    const elizaFormat = req.body.elizaFormat;
     const isElizaOSRequest = userAgent.toLowerCase().includes('eliza') || 
                             userAgent.toLowerCase().includes('elizaos') || 
                             elizaHeader === 'true' || 
-                            elizaHeader === '1';
+                            elizaHeader === '1' ||
+                            elizaFormat === true;
 
     // Validate contentType
     const validContentTypes = ['post', 'thread', 'hook', 'summary-cta', 'reply', 'discord'];
