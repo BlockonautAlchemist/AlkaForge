@@ -121,6 +121,14 @@ export default async function handler(
       });
     }
 
+    // Detect ElizaOS agent requests
+    const userAgent = req.headers['user-agent'] || '';
+    const elizaHeader = req.headers['x-elizaos'] || req.headers['X-ElizaOS'];
+    const isElizaOSRequest = userAgent.toLowerCase().includes('eliza') || 
+                            userAgent.toLowerCase().includes('elizaos') || 
+                            elizaHeader === 'true' || 
+                            elizaHeader === '1';
+
     // Validate contentType
     const validContentTypes = ['post', 'thread', 'hook', 'summary-cta', 'reply', 'discord'];
     if (!validContentTypes.includes(contentType)) {
@@ -239,68 +247,179 @@ export default async function handler(
 
     let generatedContent = response.data.choices[0].message.content;
     
-    // Process thread content formatting
-    if (contentType === 'thread') {
-      try {
-        // Extract JSON from potential HTML/XML wrapper
-        let cleanJsonString = generatedContent;
-        
-        // Check if content is wrapped in HTML/XML tags and extract JSON
-        const htmlMatch = generatedContent.match(/<(?:html|body|div|p|pre|code)[^>]*>([\s\S]*?)<\/(?:html|body|div|p|pre|code)>/);
-        if (htmlMatch) {
-          cleanJsonString = htmlMatch[1].trim();
-        }
-        
-        // Also handle XML-style wrapping
-        const xmlMatch = cleanJsonString.match(/^<[^>]+>([\s\S]*?)<\/[^>]+>$/);
-        if (xmlMatch) {
-          cleanJsonString = xmlMatch[1].trim();
-        }
-        
-        // Try to parse as JSON to see if it's a structured thread object
-        const parsedContent = JSON.parse(cleanJsonString);
-        
-        // Check if it's an object with part keys
-        if (typeof parsedContent === 'object' && parsedContent !== null) {
-          const partKeys = Object.keys(parsedContent).filter(key => key.startsWith('part'));
+    // Process content formatting based on request type
+    if (isElizaOSRequest) {
+      // ElizaOS formatting with XML wrapper
+      let formattedContent = '';
+      
+      if (contentType === 'thread') {
+        try {
+          // Extract JSON from potential HTML/XML wrapper
+          let cleanJsonString = generatedContent;
           
-          if (partKeys.length > 0) {
-            // For thread content, return the original JSON string (not processed array)
-            // This ensures the response format is: {"content": "{\"part1\": \"...\", \"part2\": \"...\"}", "usage": {...}}
-            generatedContent = JSON.stringify(parsedContent);
+          // Check if content is wrapped in HTML/XML tags and extract JSON
+          const htmlMatch = generatedContent.match(/<(?:html|body|div|p|pre|code)[^>]*>([\s\S]*?)<\/(?:html|body|div|p|pre|code)>/);
+          if (htmlMatch) {
+            cleanJsonString = htmlMatch[1].trim();
           }
-        }
-      } catch (parseError) {
-        console.error('Failed to parse thread content as JSON:', parseError);
-        console.log('Raw content:', generatedContent);
-        
-        // If all parsing attempts fail, try to extract any JSON-like content
-        const jsonMatch = generatedContent.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          try {
-            const extractedJson = JSON.parse(jsonMatch[0]);
-            if (typeof extractedJson === 'object' && extractedJson !== null) {
-              const partKeys = Object.keys(extractedJson).filter(key => key.startsWith('part'));
-              if (partKeys.length > 0) {
-                generatedContent = JSON.stringify(extractedJson);
-              }
+          
+          // Also handle XML-style wrapping
+          const xmlMatch = cleanJsonString.match(/^<[^>]+>([\s\S]*?)<\/[^>]+>$/);
+          if (xmlMatch) {
+            cleanJsonString = xmlMatch[1].trim();
+          }
+          
+          // Try to parse as JSON to see if it's a structured thread object
+          const parsedContent = JSON.parse(cleanJsonString);
+          
+          // Check if it's an object with part keys
+          if (typeof parsedContent === 'object' && parsedContent !== null) {
+            const partKeys = Object.keys(parsedContent).filter(key => key.startsWith('part'));
+            
+            if (partKeys.length > 0) {
+              // Sort parts by number and format for ElizaOS
+              const sortedParts = partKeys
+                .sort((a, b) => {
+                  const numA = parseInt(a.replace('part', ''));
+                  const numB = parseInt(b.replace('part', ''));
+                  return numA - numB;
+                })
+                .map((partKey, index) => {
+                  const content = parsedContent[partKey];
+                  // Format as "1/ content", "2/ content", etc.
+                  return `${index + 1}/ ${content}`;
+                });
+              
+              // Create thinking tag based on the input
+              const topic = finalPrompt.length > 50 ? finalPrompt.substring(0, 50) + '...' : finalPrompt;
+              
+              formattedContent = `<thinking>
+User wants a thread about ${topic}. I'll generate a ${tone}, engaging 10-part thread that breaks down the topic with ${tone} tone and personality.
+</thinking>
+
+${sortedParts.join('\n\n')}`;
             }
-          } catch (secondParseError) {
-            console.error('Second parsing attempt failed:', secondParseError);
-            // Return error response for thread if we can't extract valid JSON
+          }
+        } catch (parseError) {
+          console.error('Failed to parse thread content as JSON:', parseError);
+          // Fallback: try to extract any JSON-like content
+          const jsonMatch = generatedContent.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try {
+              const extractedJson = JSON.parse(jsonMatch[0]);
+              if (typeof extractedJson === 'object' && extractedJson !== null) {
+                const partKeys = Object.keys(extractedJson).filter(key => key.startsWith('part'));
+                if (partKeys.length > 0) {
+                  const sortedParts = partKeys
+                    .sort((a, b) => {
+                      const numA = parseInt(a.replace('part', ''));
+                      const numB = parseInt(b.replace('part', ''));
+                      return numA - numB;
+                    })
+                    .map((partKey, index) => {
+                      const content = extractedJson[partKey];
+                      return `${index + 1}/ ${content}`;
+                    });
+                  
+                  const topic = finalPrompt.length > 50 ? finalPrompt.substring(0, 50) + '...' : finalPrompt;
+                  formattedContent = `<thinking>
+User wants a thread about ${topic}. I'll generate a ${tone}, engaging thread that breaks down the topic.
+</thinking>
+
+${sortedParts.join('\n\n')}`;
+                }
+              }
+            } catch (secondParseError) {
+              console.error('Second parsing attempt failed:', secondParseError);
+              return res.status(500).json({ 
+                error: 'Failed to generate valid thread content. Please try again.',
+                error_code: 'THREAD_GENERATION_ERROR'
+              });
+            }
+          } else {
             return res.status(500).json({ 
               error: 'Failed to generate valid thread content. Please try again.',
               error_code: 'THREAD_GENERATION_ERROR'
             });
           }
-        } else {
-          // No JSON found at all
-          return res.status(500).json({ 
-            error: 'Failed to generate valid thread content. Please try again.',
-            error_code: 'THREAD_GENERATION_ERROR'
-          });
+        }
+      } else {
+        // Non-thread content for ElizaOS
+        const topic = finalPrompt.length > 50 ? finalPrompt.substring(0, 50) + '...' : finalPrompt;
+        formattedContent = `<thinking>
+User wants a ${contentType} with ${tone} tone about ${topic}. I'll create engaging content that matches their request.
+</thinking>
+
+${generatedContent}`;
+      }
+      
+      generatedContent = formattedContent;
+      
+    } else {
+      // Regular API formatting (non-ElizaOS)
+      if (contentType === 'thread') {
+        try {
+          // Extract JSON from potential HTML/XML wrapper
+          let cleanJsonString = generatedContent;
+          
+          // Check if content is wrapped in HTML/XML tags and extract JSON
+          const htmlMatch = generatedContent.match(/<(?:html|body|div|p|pre|code)[^>]*>([\s\S]*?)<\/(?:html|body|div|p|pre|code)>/);
+          if (htmlMatch) {
+            cleanJsonString = htmlMatch[1].trim();
+          }
+          
+          // Also handle XML-style wrapping
+          const xmlMatch = cleanJsonString.match(/^<[^>]+>([\s\S]*?)<\/[^>]+>$/);
+          if (xmlMatch) {
+            cleanJsonString = xmlMatch[1].trim();
+          }
+          
+          // Try to parse as JSON to see if it's a structured thread object
+          const parsedContent = JSON.parse(cleanJsonString);
+          
+          // Check if it's an object with part keys
+          if (typeof parsedContent === 'object' && parsedContent !== null) {
+            const partKeys = Object.keys(parsedContent).filter(key => key.startsWith('part'));
+            
+            if (partKeys.length > 0) {
+              // For regular API, return the original JSON string 
+              // This ensures the response format is: {"content": "{\"part1\": \"...\", \"part2\": \"...\"}", "usage": {...}}
+              generatedContent = JSON.stringify(parsedContent);
+            }
+          }
+        } catch (parseError) {
+          console.error('Failed to parse thread content as JSON:', parseError);
+          console.log('Raw content:', generatedContent);
+          
+          // If all parsing attempts fail, try to extract any JSON-like content
+          const jsonMatch = generatedContent.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try {
+              const extractedJson = JSON.parse(jsonMatch[0]);
+              if (typeof extractedJson === 'object' && extractedJson !== null) {
+                const partKeys = Object.keys(extractedJson).filter(key => key.startsWith('part'));
+                if (partKeys.length > 0) {
+                  generatedContent = JSON.stringify(extractedJson);
+                }
+              }
+            } catch (secondParseError) {
+              console.error('Second parsing attempt failed:', secondParseError);
+              // Return error response for thread if we can't extract valid JSON
+              return res.status(500).json({ 
+                error: 'Failed to generate valid thread content. Please try again.',
+                error_code: 'THREAD_GENERATION_ERROR'
+              });
+            }
+          } else {
+            // No JSON found at all
+            return res.status(500).json({ 
+              error: 'Failed to generate valid thread content. Please try again.',
+              error_code: 'THREAD_GENERATION_ERROR'
+            });
+          }
         }
       }
+      // Non-thread content for regular API remains unchanged
     }
     
     // Increment API key usage
@@ -313,13 +432,21 @@ export default async function handler(
       // Don't fail the request if usage tracking fails, but log it
     }
     
-    return res.status(200).json({ 
-      content: generatedContent,
-      usage: {
-        monthly_usage: apiKeyInfo.monthly_usage + 1,
-        api_key_id: apiKeyInfo.api_key_id
-      }
-    });
+    // Return response based on request type
+    if (isElizaOSRequest) {
+      // For ElizaOS, return raw content with text/plain content type
+      res.setHeader('Content-Type', 'text/plain');
+      return res.status(200).send(generatedContent);
+    } else {
+      // Regular JSON API response
+      return res.status(200).json({ 
+        content: generatedContent,
+        usage: {
+          monthly_usage: apiKeyInfo.monthly_usage + 1,
+          api_key_id: apiKeyInfo.api_key_id
+        }
+      });
+    }
 
   } catch (error: any) {
     console.error('Error in developer API:', error);
