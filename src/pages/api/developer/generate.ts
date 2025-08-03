@@ -322,23 +322,20 @@ export default async function handler(
             const partKeys = Object.keys(parsedContent).filter(key => key.startsWith('part'));
             
             if (partKeys.length > 0) {
-              // Sort parts by number and format for ElizaOS
-              const sortedParts = partKeys
-                .sort((a, b) => {
-                  const numA = parseInt(a.replace('part', ''));
-                  const numB = parseInt(b.replace('part', ''));
-                  return numA - numB;
-                })
-                .map((partKey, index) => {
-                  const content = parsedContent[partKey];
-                  // Format as "1/ content", "2/ content", etc.
-                  return `${index + 1}/ ${content}`;
-                });
+              // MODIFIED: Combine all thread parts into a single coherent message for ElizaOS
+              // Instead of preserving the part structure with numbering, concatenate all parts into one response
+              const threadParts = [];
+              for (let i = 1; i <= 10; i++) {
+                const part = parsedContent[`part${i}`];
+                if (part) {
+                  threadParts.push(part);
+                }
+              }
               
               // Create reasoning and user-facing content
               const topic = finalPrompt.length > 50 ? finalPrompt.substring(0, 50) + '...' : finalPrompt;
-              reasoning = `User wants a thread about ${topic}. I'll generate a ${tone}, engaging 10-part thread that breaks down the topic with ${tone} tone and personality.`;
-              userFacingContent = sortedParts.join('\n\n');
+              reasoning = `User wants a thread about ${topic}. I'll generate a ${tone}, engaging thread that breaks down the topic with ${tone} tone and personality.`;
+              userFacingContent = threadParts.join('\n\n');
             }
           }
         } catch (parseError) {
@@ -351,20 +348,19 @@ export default async function handler(
               if (typeof extractedJson === 'object' && extractedJson !== null) {
                 const partKeys = Object.keys(extractedJson).filter(key => key.startsWith('part'));
                 if (partKeys.length > 0) {
-                  const sortedParts = partKeys
-                    .sort((a, b) => {
-                      const numA = parseInt(a.replace('part', ''));
-                      const numB = parseInt(b.replace('part', ''));
-                      return numA - numB;
-                    })
-                    .map((partKey, index) => {
-                      const content = extractedJson[partKey];
-                      return `${index + 1}/ ${content}`;
-                    });
+                  // MODIFIED: Combine all thread parts into a single coherent message for ElizaOS fallback
+                  // Instead of preserving the part structure with numbering, concatenate all parts into one response
+                  const threadParts = [];
+                  for (let i = 1; i <= 10; i++) {
+                    const part = extractedJson[`part${i}`];
+                    if (part) {
+                      threadParts.push(part);
+                    }
+                  }
                   
                   const topic = finalPrompt.length > 50 ? finalPrompt.substring(0, 50) + '...' : finalPrompt;
                   reasoning = `User wants a thread about ${topic}. I'll generate a ${tone}, engaging thread that breaks down the topic.`;
-                  userFacingContent = sortedParts.join('\n\n');
+                  userFacingContent = threadParts.join('\n\n');
                 }
               }
             } catch (secondParseError) {
@@ -428,9 +424,19 @@ export default async function handler(
             const partKeys = Object.keys(parsedContent).filter(key => key.startsWith('part'));
             
             if (partKeys.length > 0) {
-              // For regular API, return the original JSON string 
-              // This ensures the response format is: {"content": "{\"part1\": \"...\", \"part2\": \"...\"}", "usage": {...}}
-              generatedContent = JSON.stringify(parsedContent);
+              // MODIFIED: Combine all thread parts into a single coherent message
+              // Instead of preserving the JSON structure, concatenate all parts into one response
+              const threadParts = [];
+              for (let i = 1; i <= 10; i++) {
+                const part = parsedContent[`part${i}`];
+                if (part) {
+                  threadParts.push(part);
+                }
+              }
+              
+              // Join all parts with double line breaks to create a single coherent message
+              // This removes the part1/part2 numbering and creates one unified response
+              generatedContent = threadParts.join('\n\n');
             }
           }
         } catch (parseError) {

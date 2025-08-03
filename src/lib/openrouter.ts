@@ -193,8 +193,8 @@ export async function generateContent({
           }
         }
         
-        // Convert to a human-readable thread format
-        // Each part on a new line, separated by double line breaks
+        // MODIFIED: Combine all thread parts into a single coherent message
+        // Instead of preserving the part structure, concatenate all parts into one response
         const threadParts = [];
         for (let i = 1; i <= 10; i++) {
           const part = parsedContent[`part${i}`];
@@ -203,7 +203,8 @@ export async function generateContent({
           }
         }
         
-        // Join all parts with double line breaks to create a human-readable thread
+        // Join all parts with double line breaks to create a single coherent message
+        // This removes the part1/part2 numbering and creates one unified response
         content = threadParts.join('\n\n');
         
       } catch (error) {
