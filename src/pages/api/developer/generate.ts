@@ -2,6 +2,24 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { getApiKeyFromRequest, incrementApiKeyUsage, canMakeApiRequest, hashApiKey } from '@/lib/apiKeys';
 
+/**
+ * Ensures the <thought> block in the XML string contains at least one child tag.
+ * If not, prepends <task>alkaforge</task> inside <thought>.
+ */
+function ensureThoughtHasTask(xml: string): string {
+  return xml.replace(
+    /<thought>([\s\S]*?)<\/thought>/g,
+    (match, content) => {
+      // If content already contains a child tag (e.g., <task>, <intent>, etc.), leave unchanged
+      if (/<[a-zA-Z0-9_]+>[\s\S]*?<\/[a-zA-Z0-9_]+>/.test(content)) {
+        return match;
+      }
+      // Otherwise, prepend <task>alkaforge</task>
+      return `<thought><task>alkaforge</task>${content}</thought>`;
+    }
+  );
+}
+
 // Request/Response types for developer API
 type DeveloperApiRequest = {
   // New structured format
@@ -437,9 +455,9 @@ ${generatedContent}`;
     
     // Return response based on request type
     if (isElizaOSRequest) {
-      // For ElizaOS, return raw content with text/plain content type
+      // For ElizaOS, ensure <thought> has a child tag, then return
       res.setHeader('Content-Type', 'text/plain');
-      return res.status(200).send(generatedContent);
+      return res.status(200).send(ensureThoughtHasTask(generatedContent));
     } else {
       // Regular JSON API response
       return res.status(200).json({ 
