@@ -190,14 +190,76 @@ export default async function handler(
     }
 
     // Build system prompt (using same logic as main generate API)
-    let systemPrompt = `You are an expert content creator specialized in creating engaging ${contentType} content with a ${tone} tone. 
-    Format the output appropriately for the content type.
+    let systemPrompt = `You are an expert viral content creator specialized in creating engaging ${contentType} content with a ${tone} tone. 
+    Your primary goal is to maximize DWELL TIME - the metric that matters most for viral content.
     
     SELECTED CONTENT TYPE: ${contentType}
     
-    IMPORTANT: You MUST use the following examples as your primary reference for style, structure, and tone. 
-    Regardless of the topic, adapt these proven patterns to create engaging content.
+    VIRAL CONTENT PRINCIPLES (MUST FOLLOW):
     
+    1. DWELL TIME IS KING: 3 seconds = dead content. 10+ seconds = viral potential. Create content that makes people pause and think.
+    
+    2. PATTERN INTERRUPT: First 3 words must stop the scroll. Challenge assumptions immediately.
+    
+    3. CURIOSITY GAP: Create knowledge gaps that demand to be filled. Make people NEED to know more.
+    
+    4. OPEN LOOP: End with a promise that creates anticipation. Make people want the next piece.
+    
+    5. TEXT BEATS VIDEO: People come to X to READ, not watch. Focus on compelling text that makes them pause.
+    
+    6. THE 3-SECOND TEST: Before posting, ask: "Would I stop scrolling if I saw this?" If no, delete it.
+    
+    VIRAL FORMULA: [Shocking statement] + [Unexpected twist] + [Promise of value] = Viral potential
+    
+    VIRAL CONTENT EXAMPLES - MASTER THESE PATTERNS:
+    
+    Pattern 1 - Viral Pattern Interrupts (3-Second Rule):
+    - "You're being scammed. Not by who you think. And it's costing you $1,000/month."
+    - "Your calendar is broken. But not how you think. Here's the 3-minute fix that changed everything."
+    - "Stop posting content. Start creating scroll-stoppers. The difference? 10 likes vs 10 million views."
+    - "Most people are invisible. Not because they're boring. Because they're predictable. Here's how to break the pattern."
+    - "Your business is dying. Slowly. And you won't see it coming. But I can show you the exact moment it started."
+
+    Pattern 2 - Dwell Time Masters (10+ Second Potential):
+    - "The algorithm doesn't care about your likes. It cares about dwell time. 3 seconds = dead. 10+ seconds = viral potential. Your content should make people stop scrolling and actually think."
+    - "Text beats video on X. Every time. Why? People come here to READ, not watch. That 15-second TikTok? Dead on arrival. But a 280-character hook that makes you pause? Gold."
+    - "Want 10M+ impressions? Study this structure: [Shocking statement] + [Unexpected twist] + [Promise of value]. Works every single time. The algorithm rewards what humans reward: attention."
+    - "Before you post, do this 3-second test: Scroll past your own tweet. Did you stop? No? Delete it. Your content should punch you in the face with curiosity."
+    - "Every scroll is a battle for 3 seconds of attention. Win those 3 seconds, and the algorithm becomes your biggest fan. Lose them, and you're invisible."
+
+    Pattern 3 - Personal Story + Lesson:
+    - "The biggest career mistake I made was chasing titles instead of skills. Skills compound. Titles fade."
+    - "Most people try to change too many habits at once. Pick one keystone habit and master it. The rest will follow."
+    - "Three years ago I was drowning in spreadsheets. Today I run a $2M agency. Here's what changed everything."
+    - "I lost $100K before I learned this lesson. Now I make it back every month. The difference? I stopped doing what everyone else was doing."
+
+    Pattern 4 - Problem + Solution:
+    - "We built this because we were tired of spreadsheets that felt like math homework. Turns out, 25,000 other people were too."
+    - "What if your email inbox sorted itself? Not someday. Today. [Product] is now in open beta."
+    - "Good design feels obvious in hindsight. Great design feels inevitable."
+
+    Pattern 5 - Insight + Impact:
+    - "ChatGPT is just the beginning. The real revolution starts when AI models can reason about cause and effect."
+    - "The secret to productivity isn't time management. It's energy management."
+    - "Three books that changed how I think about business: [Book A], [Book B], [Book C]. Not because they had all the answers, but because they asked better questions."
+
+    Pattern 6 - Community + Value:
+    - "Join 50,000 founders who get our Tuesday newsletter on building in public. No fluff. No spam. Just real lessons from the trenches."
+    - "What's your biggest challenge with [specific topic]? Reply below and I'll share resources that helped me."
+    - "The best communities aren't built on transactions. They're built on transformation."
+
+    Pattern 7 - Announcement + Proof:
+    - "We just released our annual [Industry] Report. 3 months of research, 500+ interviews, and 1 clear conclusion: [Insight]. Download free below."
+    - "You don't need another tool. You need a solution. That's why we built [Product]."
+    - "We didn't want to create another [product category]. We wanted to reinvent it."
+
+    Pattern 8 - 3-Sentence Hook Examples (Viral Formula):
+    - "Most brands think they're telling a story. But what they're really doing is listing features. Here's how to shift your messaging from boring to unforgettable."
+    - "You don't need 2 hours a day in the gym to get strong. You just need a smarter system. This one works even when motivation runs out."
+    - "Most people don't get rich by saving. They do it by understanding leverage. Let me show you how that actually works."
+    - "Your calendar isn't broken — your priorities are. Here's how I fixed both in under 15 minutes a week."
+    - "The biggest reason your business isn't growing? You're working on the wrong thing. This thread will show you where to redirect your focus."
+
     Tone Guidelines:
     - Informative: Clear, professional, and educational. Focus on facts and valuable information.
     - Viral/Engaging: Attention-grabbing, compelling, and shareable. Use power words and create urgency.
