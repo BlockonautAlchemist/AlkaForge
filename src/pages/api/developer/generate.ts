@@ -8,19 +8,17 @@ function formatForEliza(xmlContent: string, reasoning: string): string {
   const hasTaskTag = trimmedReasoning.includes('<task>');
   const reasoningWithTask = hasTaskTag ? trimmedReasoning : `<task>alkaforge</task>\n${trimmedReasoning}`;
 
-  // Escape only `&`, not < or >. Do not wrap XML or HTML inside <say>.
+  // Escape only `&`, not < or >. Do not wrap XML or HTML inside <text>.
   const cleanText = xmlContent
     .replace(/&/g, '&amp;')    // Escape ampersands
     .replace(/</g, '&lt;')     // Also escape < and > to prevent injection
     .replace(/>/g, '&gt;');
 
   return `<response>
-  <thinking>
-    ${reasoningWithTask}
-  </thinking>
-  <actions>
-    <say>${cleanText}</say>
-  </actions>
+  <thought>${reasoningWithTask}</thought>
+  <actions>REPLY</actions>
+  <providers></providers>
+  <text>${cleanText}</text>
 </response>`;
 }
 
