@@ -353,7 +353,7 @@ export default async function handler(
     
     // Process content formatting based on request type
     if (isElizaOSRequest) {
-      // ElizaOS formatting with proper XML structure
+      // ElizaOS formatting with proper XML structure for ALL content types
       let userFacingContent = '';
       let reasoning = '';
       
@@ -438,7 +438,7 @@ export default async function handler(
           }
         }
       } else {
-        // Non-thread content for ElizaOS
+        // Non-thread content for ElizaOS (post, hook, summary-cta, reply, discord)
         // Check if content has reasoning (if it's a single blob, split on first double line break)
         const doubleLineBreakIndex = generatedContent.indexOf('\n\n');
         
@@ -454,7 +454,7 @@ export default async function handler(
         }
       }
       
-      // Use the formatForEliza helper function
+      // Use the formatForEliza helper function for ALL content types when elizaFormat is true
       generatedContent = formatForEliza(userFacingContent, reasoning);
       
     } else {
