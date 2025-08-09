@@ -331,18 +331,23 @@ export default function ContentGenerator() {
       setSelectedHook(null);
       setThreadHooks([]);
       setShowHookSelection(false);
-    } catch (error) {
-      console.error('Error generating content:', error);
-      
-      let errorMessage = 'Failed to generate content. Please try again.';
-      
-      if (error instanceof Error) {
-        console.error('Error message:', error.message);
-        console.error('Error stack:', error.stack);
-        errorMessage = `Error: ${error.message}`;
+    } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        toast.error('Please log in to generate content.');
+        router.push('/login');
+      } else {
+        console.error('Error generating content:', error);
+
+        let errorMessage = 'Failed to generate content. Please try again.';
+
+        if (error instanceof Error) {
+          console.error('Error message:', error.message);
+          console.error('Error stack:', error.stack);
+          errorMessage = `Error: ${error.message}`;
+        }
+
+        toast.error(errorMessage);
       }
-      
-      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -405,8 +410,13 @@ export default function ContentGenerator() {
       // Refresh subscription usage after generation
       await refreshSubscription();
       toast.success('Content generated successfully!');
-    } catch (error) {
-      toast.error('Failed to generate thread.');
+    } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        toast.error('Please log in to generate content.');
+        router.push('/login');
+      } else {
+        toast.error('Failed to generate thread.');
+      }
     } finally {
       setLoading(false);
     }

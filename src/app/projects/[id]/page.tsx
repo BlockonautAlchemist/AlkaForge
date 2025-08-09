@@ -339,7 +339,12 @@ export default function ProjectPage({ params }: { params: { id: string } }) {
     try {
       const url = await createCheckoutSession(tier);
       window.location.href = url;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        toast.error('Please log in to upgrade your plan.');
+        router.push('/login');
+        return;
+      }
       toast.error('Failed to start checkout process');
     }
   };

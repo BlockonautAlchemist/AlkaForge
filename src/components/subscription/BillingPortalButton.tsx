@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSubscription } from '@/context/SubscriptionContext';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 interface BillingPortalButtonProps {
@@ -12,6 +13,7 @@ const BillingPortalButton: React.FC<BillingPortalButtonProps> = ({
   children = 'Manage Billing' 
 }) => {
   const { subscription, createCustomerPortalSession } = useSubscription();
+  const router = useRouter();
 
   const handleClick = async () => {
     // Check if user has a paid subscription
@@ -30,6 +32,11 @@ const BillingPortalButton: React.FC<BillingPortalButtonProps> = ({
       const url = await createCustomerPortalSession();
       window.location.href = url;
     } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        toast.error('Please log in to manage billing.');
+        router.push('/login');
+        return;
+      }
       const errorMessage = error.message || 'Failed to open billing portal';
       toast.error(errorMessage);
     }

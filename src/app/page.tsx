@@ -6,12 +6,14 @@ import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 import { Edit as FiEdit, Trophy as FiTrophy, Users as FiUsers, TrendingUp as FiTrendingUp, Check as FiCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function Home() {
   const { subscription, createCheckoutSession } = useSubscription();
   const { user } = useAuth();
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState<string | null>(null);
 
   const handleSubscribe = async (tier: 'STANDARD' | 'PREMIUM') => {
@@ -24,9 +26,14 @@ export default function Home() {
     try {
       const url = await createCheckoutSession(tier);
       window.location.href = url;
-    } catch (error) {
-      console.error('Subscription error:', error);
-      toast.error('Failed to start checkout process');
+    } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        toast.error('Please log in to subscribe to a plan');
+        router.push('/login');
+      } else {
+        console.error('Subscription error:', error);
+        toast.error('Failed to start checkout process');
+      }
     } finally {
       setIsLoading(null);
     }
