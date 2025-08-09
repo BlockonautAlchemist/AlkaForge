@@ -6,6 +6,7 @@ import Link from 'next/link';
 import Layout from '@/components/layout/Layout';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 import { FiCheck, FiX, FiStar, FiZap, FiShield, FiHeadphones } from '@/lib/react-icons-compat';
 import toast from 'react-hot-toast';
 
@@ -13,6 +14,7 @@ export default function PricingPage() {
   const { subscription, createCheckoutSession } = useSubscription();
   const { user } = useAuth();
   const [isLoading, setIsLoading] = useState<string | null>(null);
+  const router = useRouter();
 
   const handleSubscribe = async (tier: 'STANDARD' | 'PREMIUM') => {
     if (!user) {
@@ -24,9 +26,14 @@ export default function PricingPage() {
     try {
       const url = await createCheckoutSession(tier);
       window.location.href = url;
-    } catch (error) {
-      console.error('Subscription error:', error);
-      toast.error('Failed to start checkout process');
+    } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        toast.error('Please log in to subscribe to a plan');
+        router.push('/login');
+      } else {
+        console.error('Subscription error:', error);
+        toast.error('Failed to start checkout process');
+      }
     } finally {
       setIsLoading(null);
     }

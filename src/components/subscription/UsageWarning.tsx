@@ -1,5 +1,6 @@
 import React from 'react';
 import { useSubscription } from '@/context/SubscriptionContext';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 interface UsageWarningProps {
@@ -14,12 +15,18 @@ const UsageWarning: React.FC<UsageWarningProps> = ({ className = '' }) => {
     warning,
     createCheckoutSession,
   } = useSubscription();
+  const router = useRouter();
 
   const handleUpgrade = async (tier: 'STANDARD' | 'PREMIUM') => {
     try {
       const url = await createCheckoutSession(tier);
       window.location.href = url;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        toast.error('Please log in to upgrade your plan.');
+        router.push('/login');
+        return;
+      }
       toast.error('Failed to start checkout process');
     }
   };

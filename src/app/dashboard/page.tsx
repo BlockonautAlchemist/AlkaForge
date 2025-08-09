@@ -330,7 +330,12 @@ export default function Dashboard() {
     try {
       const url = await createCheckoutSession(tier);
       window.location.href = url;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        toast.error('Please log in to upgrade your plan.');
+        router.push('/login');
+        return;
+      }
       toast.error('Failed to start checkout process');
     }
   };
@@ -712,6 +717,11 @@ export default function Dashboard() {
                     const url = await createCustomerPortalSession();
                     window.location.href = url;
                   } catch (error: any) {
+                    if (error.message === 'Authentication required') {
+                      toast.error('Please log in to manage billing.');
+                      router.push('/login');
+                      return;
+                    }
                     const errorMessage = error.message || 'Failed to open billing portal';
                     toast.error(errorMessage);
                   }

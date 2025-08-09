@@ -1,10 +1,12 @@
 import React from 'react';
 import { useSubscription } from '@/context/SubscriptionContext';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 const SubscriptionDashboard: React.FC = () => {
   const { user } = useAuth();
+  const router = useRouter();
   const {
     subscription,
     tierDetails,
@@ -19,7 +21,12 @@ const SubscriptionDashboard: React.FC = () => {
     try {
       const url = await createCheckoutSession(tier);
       window.location.href = url;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        toast.error('Please log in to upgrade your plan.');
+        router.push('/login');
+        return;
+      }
       toast.error('Failed to start checkout process');
     }
   };
@@ -29,6 +36,11 @@ const SubscriptionDashboard: React.FC = () => {
       const url = await createCustomerPortalSession();
       window.location.href = url;
     } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        toast.error('Please log in to manage billing.');
+        router.push('/login');
+        return;
+      }
       const errorMessage = error.message || 'Failed to open billing portal';
       toast.error(errorMessage);
     }

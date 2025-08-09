@@ -2,17 +2,24 @@
 
 import { useSubscription } from '@/context/SubscriptionContext';
 import { useAuth } from '@/context/AuthContext';
+import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 export default function DebugSubscription() {
   const { user } = useAuth();
   const { subscription, syncSubscription, refreshSubscription, loading } = useSubscription();
+  const router = useRouter();
 
   const handleSync = async () => {
     try {
       await syncSubscription();
       toast.success('Subscription synced successfully!');
     } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        toast.error('Please log in to sync subscription');
+        router.push('/login');
+        return;
+      }
       toast.error(error.message || 'Failed to sync subscription');
     }
   };
@@ -22,6 +29,11 @@ export default function DebugSubscription() {
       await refreshSubscription();
       toast.success('Subscription refreshed!');
     } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        toast.error('Please log in to refresh subscription');
+        router.push('/login');
+        return;
+      }
       toast.error('Failed to refresh subscription');
     }
   };

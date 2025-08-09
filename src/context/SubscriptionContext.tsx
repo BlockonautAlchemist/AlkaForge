@@ -45,12 +45,12 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   // Helper function to get auth headers for API calls
   const getAuthHeaders = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (session?.access_token) {
-      return {
-        'Authorization': `Bearer ${session.access_token}`
-      };
+    if (!session?.access_token) {
+      throw new Error('Authentication required');
     }
-    return {};
+    return {
+      'Authorization': `Bearer ${session.access_token}`
+    };
   };
 
   const refreshSubscription = async () => {
@@ -67,12 +67,15 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       setLoading(true);
       const headers = await getAuthHeaders();
       const response = await axios.get('/api/subscription/status', { headers });
-      
+
       setSubscription(response.data.subscription);
       setTierDetails(response.data.tier_details);
       setRemainingRequests(response.data.remaining_requests || 0);
       setWarning(response.data.warning || null);
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        throw error;
+      }
       console.error('Error fetching subscription:', error);
       // Set default free tier on error
       setSubscription({
@@ -98,7 +101,10 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       const headers = await getAuthHeaders();
       const response = await axios.post('/api/subscription/create-checkout', { tier }, { headers });
       return response.data.url;
-    } catch (error) {
+    } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        throw error;
+      }
       console.error('Error creating checkout session:', error);
       throw new Error('Failed to create checkout session');
     }
@@ -109,12 +115,15 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       setLoading(true);
       const headers = await getAuthHeaders();
       const response = await axios.post('/api/subscription/sync', {}, { headers });
-      
+
       if (response.data.success) {
         // Refresh subscription data after sync
         await refreshSubscription();
       }
     } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        throw error;
+      }
       console.error('Error syncing subscription:', error);
       throw new Error('Failed to sync subscription status');
     } finally {
@@ -128,8 +137,11 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
       const response = await axios.post('/api/subscription/customer-portal', {}, { headers });
       return response.data.url;
     } catch (error: any) {
+      if (error.message === 'Authentication required') {
+        throw error;
+      }
       console.error('Error creating customer portal session:', error);
-      
+
       // Extract error message from API response
       const errorMessage = error.response?.data?.error || 'Failed to create customer portal session';
       throw new Error(errorMessage);
@@ -137,7 +149,11 @@ export function SubscriptionProvider({ children }: { children: React.ReactNode }
   };
 
   useEffect(() => {
-    refreshSubscription();
+    refreshSubscription().catch((err) => {
+      if (err.message === 'Authentication required') {
+        console.warn('Authentication required to refresh subscription');
+      }
+    });
   }, [user]);
 
   return (
