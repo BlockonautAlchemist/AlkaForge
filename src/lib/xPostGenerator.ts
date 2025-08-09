@@ -46,7 +46,9 @@ export function generateXPost(category: string, variables: Record<string, string
   // Replace variables in the template
   let post = template.template;
   for (const [key, value] of Object.entries(variables)) {
-    post = post.replace(`{${key}}`, value);
+    // Replace all instances of the placeholder, not just the first
+    const pattern = new RegExp(`\\{${key}\\}`, 'g');
+    post = post.replace(pattern, value);
   }
 
   // Ensure the post is within X's character limit (280 characters)
